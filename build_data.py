@@ -112,8 +112,12 @@ def trim_furlough(f, mode, me):
 
 def main():
     cfg = load_config()
-    mode = cfg.get("nameMode", "full")
+    mode = cfg.get("nameMode", "mask")
     me = cfg.get("selfName", "박병수")
+    # 안전장치: 실명 그대로 배포는 저장소에 ALLOW_FULL_NAMES 파일이 있을 때만 허용한다.
+    if mode == "full" and not os.path.exists(os.path.join(HERE, "ALLOW_FULL_NAMES")):
+        sys.exit("중단: nameMode=full 은 ALLOW_FULL_NAMES 파일이 있을 때만 허용됩니다. "
+                 "(공개 저장소에 동료 실명이 올라갑니다)")
     os.makedirs(OUT, exist_ok=True)
 
     files = sorted(f for f in os.listdir(SRC) if re.match(r"^\d{4}-\d{2}-\d{2}\.json$", f))
