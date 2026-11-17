@@ -18,7 +18,7 @@ body{
   font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;
   font-size:17px;
   line-height:1.45;
-  padding-bottom:calc(84px + env(safe-area-inset-bottom));
+  padding-bottom:calc(104px + env(safe-area-inset-bottom));
   -webkit-text-size-adjust:100%;
 }
 button{font-family:inherit;cursor:pointer}
@@ -260,3 +260,13 @@ button{font-family:inherit;cursor:pointer}
 /* 상단 우측 회사명 */
 .toprow{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .corp{font-size:14px;font-weight:800;color:#1d4ed8;white-space:nowrap;letter-spacing:-.3px}
+
+/* ===== 만든이 표시 (화면 하단 고정, 탭바 바로 위) ===== */
+.credit{
+  position:fixed;left:0;right:0;bottom:calc(62px + env(safe-area-inset-bottom));
+  z-index:29;text-align:center;font-size:11px;font-weight:700;letter-spacing:-.2px;
+  color:#94a1b6;pointer-events:none;
+}
+@media (min-width:600px){
+  .credit{left:50%;right:auto;transform:translateX(-50%);width:560px}
+}
