@@ -469,12 +469,30 @@
   }
 
   /* ---------------- 그리기: 전체시간표 ---------------- */
+  /* 이번 달 1일~말일 + 지난·다음 달 자료가 있으면 그 날짜까지 함께 보여 준다 */
+  function monthDates() {
+    var today = kstToday();
+    var y = parseInt(today.slice(0, 4), 10);
+    var m = parseInt(today.slice(5, 7), 10);
+    var first = new Date(Date.UTC(y, m - 1, 1));
+    var last = new Date(Date.UTC(y, m, 0));
+    var out = [];
+    for (var d = new Date(first); d <= last; d.setUTCDate(d.getUTCDate() + 1)) {
+      out.push(d.toISOString().slice(0, 10));
+    }
+    S.index.forEach(function (x) {
+      if (out.indexOf(x.date) < 0) out.push(x.date);
+    });
+    out.sort();
+    return out;
+  }
+
   function ensureAll() {
     if (!S.index.length) return;
-    var dates = S.index.map(function (x) { return x.date; });
+    var dates = monthDates();
     if (!S.all.date || dates.indexOf(S.all.date) < 0) {
       var today = kstToday();
-      S.all.date = dates.indexOf(today) >= 0 ? today : dates[0];
+      S.all.date = dates.indexOf(today) >= 0 ? today : (S.index.length ? S.index[0].date : dates[0]);
     }
   }
 
@@ -521,10 +539,14 @@
     if (!S.index.length) {
       dc.innerHTML = '<span class="hint">날짜를 불러오는 중…</span>';
     } else {
-      dc.innerHTML = S.index.map(function (x) {
-        var on = x.date === ds;
-        return '<button type="button" class="chip' + (on ? ' on' : '') + '" data-date="' + x.date + '">' +
-          dLabel(x.date) + '<span class="w">' + wdOf(x.date) + '</span></button>';
+      var have_ = {};
+      S.index.forEach(function (x) { have_[x.date] = true; });
+      dc.innerHTML = monthDates().map(function (dt) {
+        var on = dt === ds;
+        var ok = !!have_[dt];
+        return '<button type="button" class="chip' + (on ? ' on' : '') + (ok ? '' : ' off') +
+          '" data-date="' + dt + '">' + dLabel(dt) + '<span class="w">' +
+          (ok ? wdOf(dt) : wdOf(dt) + ' 준비 중') + '</span></button>';
       }).join('');
     }
 
