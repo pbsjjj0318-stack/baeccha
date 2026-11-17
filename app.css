@@ -164,13 +164,14 @@ button{font-family:inherit;cursor:pointer}
 }
 .allrows>.allhour:first-child{margin-top:2px}
 .arow{
-  display:grid;grid-template-columns:74px 58px 62px 1fr auto;align-items:baseline;gap:6px;
+  display:grid;grid-template-columns:74px 66px 1fr auto;align-items:baseline;gap:8px;
   background:var(--card);border:1px solid var(--line);border-radius:12px;
   padding:9px 11px;margin:0 0 6px;font-variant-numeric:tabular-nums;
 }
 .arow .atime{font-size:20px;font-weight:800;letter-spacing:-.4px}
-.arow .aroute{font-size:13.5px;font-weight:800;color:#48536a;background:#eaeef5;border-radius:8px;padding:2px 6px;text-align:center}
-.arow .aveh{font-size:14px;font-weight:700;color:var(--muted)}
+.arow .aveh{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
+.arow .aveh .vnum{font-size:14px;font-weight:700;color:var(--muted)}
+.arow .aroute{font-size:12px;font-weight:800;color:#48536a;background:#eaeef5;border-radius:7px;padding:1px 6px;line-height:1.35}
 .arow .aname{font-size:16.5px;font-weight:800;letter-spacing:-.2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .arow .aname .muted{color:#b6bfcd}
 .arow .ano{font-size:12.5px;font-weight:900;color:#1d4ed8;background:#dfe8fd;border:1px solid #c2d3f8;border-radius:7px;padding:1px 6px;white-space:nowrap}

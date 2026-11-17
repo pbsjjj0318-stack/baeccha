@@ -566,12 +566,20 @@
     var ds = S.all.date;
     var today = kstToday();
 
-    /* 날짜 달력 */
+    /* 날짜 칩 (한 달 전체) */
     var dc = $('#allDateChips');
     if (!S.index.length) {
       dc.innerHTML = '<span class="hint">날짜를 불러오는 중…</span>';
     } else {
-      dc.innerHTML = calendarHtml(ds, today);
+      var haveD = {};
+      S.index.forEach(function (x) { haveD[x.date] = true; });
+      dc.innerHTML = monthDates('all').map(function (dt) {
+        var on = dt === ds;
+        var ok = !!haveD[dt];
+        return '<button type="button" class="chip' + (on ? ' on' : '') + (ok ? '' : ' off') +
+          '" data-date="' + dt + '">' + dLabel(dt) + '<span class="w">' +
+          (ok ? wdOf(dt) : wdOf(dt) + (dt < today ? ' 자료 없음' : ' 작업 중')) + '</span></button>';
+      }).join('');
     }
 
     var d = ds ? S.data[ds] : undefined;
@@ -792,14 +800,6 @@
     });
 
     $('#allDateChips').addEventListener('click', function (e) {
-      var nav = e.target.closest ? e.target.closest('[data-cal]') : null;
-      if (nav) {
-        S.all.cal = nav.getAttribute('data-cal');
-        S.all.date = null;
-        ensureAll();
-        renderAll();
-        return;
-      }
       var c = e.target.closest ? e.target.closest('[data-date]') : null;
       if (!c) return;
       var ds = c.getAttribute('data-date');
