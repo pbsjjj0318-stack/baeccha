@@ -80,7 +80,7 @@ button{font-family:inherit;cursor:pointer}
 .cnote{margin-top:7px;color:#7b8699;font-size:14px;font-weight:600}
 .ctrips{
   margin-top:9px;display:flex;flex-wrap:nowrap;overflow-x:auto;gap:5px 6px;padding-bottom:2px;scrollbar-width:none;
-  font-size:17px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.2px;
+  font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.2px;
 }
 .card.today .ctrips{font-size:20px;flex-wrap:nowrap;overflow-x:auto;gap:5px 6px;padding-bottom:2px;scrollbar-width:none}
 .card.today .ctrips::-webkit-scrollbar{display:none}
@@ -136,7 +136,7 @@ button{font-family:inherit;cursor:pointer}
 .qmark{color:#c2410c;font-weight:900}
 .rtrips{
   margin-top:7px;display:flex;flex-wrap:wrap;gap:4px 13px;
-  font-size:17px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.2px;
+  font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.2px;
 }
 .rbig{display:none;margin-top:11px;grid-template-columns:1fr 1fr;gap:8px}
 .row.open .rtrips{display:none}
