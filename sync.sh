@@ -4,6 +4,8 @@
 set -e
 WS="${1:-/workspace}"
 cd "$(dirname "$0")"
+# 다른 실행이 먼저 올렸을 수 있으니 최신 상태로 맞춘다
+git pull --rebase --autostash -q origin main 2>/dev/null || true
 python3 build_data.py "$WS"
 if [ -z "$(git status --porcelain)" ]; then
   echo "바뀐 내용 없음 — 올리지 않았습니다."
