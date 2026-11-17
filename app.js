@@ -218,10 +218,10 @@
   function tripHtml(t, big) {
     var time = t.depart ? t.depart : (t.raw || '—');
     if (big) {
-      return '<span class="cell"><em>순번 ' + t.no + '</em><strong>' + esc(time) + '</strong>' +
+      return '<span class="cell"><em>' + t.no + '회</em><strong>' + esc(time) + '</strong>' +
         (t.depart && t.derived ? '<span class="approx">≈</span>' : '') + '</span>';
     }
-    return '<span class="tr"><b>순번 ' + t.no + '</b>' + esc(time) +
+    return '<span class="tr"><b>' + t.no + '회</b>' + esc(time) +
       (t.depart && t.derived ? '<span class="approx">≈</span>' : '') + '</span>';
   }
 
@@ -264,7 +264,7 @@
       return '<span class="pill pill-shift">' + (it.shift === 'am' ? '오전' : '오후') + '</span>';
     }).join('');
     var body = info.items.map(function (it) {
-      var meta = it.route + '번 · ' + (it.vehicle ? ('차량 ' + it.vehicle + '번') : (it.company || '차량 정보 없음'));
+      var meta = it.route + '번 · ' + (it.vno ? ('순번 ' + it.vno + ' · ') : '') + (it.vehicle ? ('차량 ' + it.vehicle + '번') : (it.company || '차량 정보 없음'));
       var trips = it.trips.length
         ? it.trips.map(function (t) { return tripHtml(t, false); }).join('')
         : '<span class="hint">이 교대 회차 없음</span>';
@@ -440,7 +440,7 @@
       var nameHtml = driver
         ? '<span class="rowname">' + esc(driver) + (unc ? '<span class="qmark">?</span>' : '') + '</span>'
         : '<span class="rowname muted">이름 없음</span>';
-      var veh = v.vehicle ? ('차량 ' + v.vehicle + '번') : (v.company || '차량 정보 없음');
+      var veh = (v.no ? '순번 ' + v.no + ' · ' : '') + (v.vehicle ? ('차량 ' + v.vehicle + '번') : (v.company || '차량 정보 없음'));
       var tripsHtml = trips.length
         ? trips.map(function (t) { return tripHtml(t, false); }).join('')
         : '<span class="hint">이 교대 회차 없음</span>';
@@ -594,7 +594,7 @@
         '<span class="aroute">' + esc(e.route) + '</span>' +
         '<span class="aveh">' + esc(e.vehicle ? (e.vehicle + '번') : (e.company || '—')) + '</span>' +
         '<span class="aname">' + (e.driver ? esc(e.driver) : '<span class="muted">이름 없음</span>') + '</span>' +
-        '<span class="ano">순번 ' + e.no + '회' +
+        '<span class="ano">' + e.no + '회' +
         (e.shift ? '<i>' + (e.shift === 'am' ? '오전' : '오후') + '</i>' : '') + '</span>' +
         '</div>');
     });
