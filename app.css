@@ -83,7 +83,7 @@ button{font-family:inherit;cursor:pointer}
 }
 .card.today .ctrips{font-size:21px}
 .citem+.citem{margin-top:12px;padding-top:12px;border-top:1px dashed #d8e2f5}
-.tr b{font-weight:800;color:#8390a5;font-size:.78em;margin-right:3px}
+.tr b{font-weight:800;color:#3b4a63;background:#e8eefb;border:1px solid #cfdcf5;border-radius:7px;padding:1px 6px;font-size:.66em;margin-right:6px;letter-spacing:-.2px;white-space:nowrap}
 .approx{color:#9aa6b8;font-size:.78em;margin-left:2px;font-weight:700}
 
 .pill{display:inline-block;border-radius:999px;padding:3px 11px;font-size:13px;font-weight:800;background:#eaeef5;color:#5b6577;white-space:nowrap}
@@ -140,7 +140,7 @@ button{font-family:inherit;cursor:pointer}
   background:#fff;border:1px solid var(--line);border-radius:13px;padding:8px 11px;
   display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;
 }
-.cell em{font-style:normal;font-size:13.5px;font-weight:800;color:var(--muted)}
+.cell em{font-style:normal;font-size:13.5px;font-weight:800;color:#3b4a63;background:#e8eefb;border:1px solid #cfdcf5;border-radius:7px;padding:1px 6px}
 .cell strong{font-size:25px;font-weight:800;letter-spacing:-.6px;font-variant-numeric:tabular-nums}
 .rowsave{
   display:none;margin-top:11px;width:100%;border:1.5px solid var(--blue);background:#fff;color:var(--blue);
@@ -167,7 +167,7 @@ button{font-family:inherit;cursor:pointer}
 .arow .aveh{font-size:14px;font-weight:700;color:var(--muted)}
 .arow .aname{font-size:16.5px;font-weight:800;letter-spacing:-.2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .arow .aname .muted{color:#b6bfcd}
-.arow .ano{font-size:12.5px;font-weight:800;color:var(--muted);white-space:nowrap}
+.arow .ano{font-size:12.5px;font-weight:800;color:#3b4a63;background:#e8eefb;border:1px solid #cfdcf5;border-radius:7px;padding:1px 6px;white-space:nowrap}
 .arow .ano i{font-style:normal;margin-left:4px;color:#98a2b3}
 .arow.mine{background:#f2f7ff;border-color:var(--blue-line);box-shadow:inset 4px 0 0 var(--blue);padding-left:7px}
 .arow.mine .atime,.arow.mine .aname{color:var(--blue)}
