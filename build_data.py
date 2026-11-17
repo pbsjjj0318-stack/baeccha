@@ -157,6 +157,11 @@ def main():
         index.append({"date": date, "weekday": out.get("weekday"),
                       "routes": [r["route"] for r in routes]})
 
+    # 워크스페이스에서 사라진 날짜의 옛 파일은 지운다
+    for old in os.listdir(OUT):
+        if re.match(r"^\d{4}-\d{2}-\d{2}\.json$", old) and old[:-5] not in kept:
+            os.remove(os.path.join(OUT, old))
+
     index.sort(key=lambda x: x["date"])
     with open(os.path.join(OUT, "index.json"), "w", encoding="utf-8") as f:
         json.dump({"dates": index, "updated": kept[-1] if kept else None}, f,
