@@ -33,6 +33,28 @@ UNCERTAIN_ROWS = {
 }
 
 
+def load_name_fixes():
+    """판독 오류 이름 교정표 (워크스페이스 data/baeccha/name-fixes.json). 없으면 빈 표."""
+    p = os.path.join(SRC, "name-fixes.json")
+    if not os.path.exists(p):
+        return {}
+    with open(p, encoding="utf-8") as f:
+        d = json.load(f)
+    return {k: v for k, v in d.items() if not k.startswith("_")}
+
+
+NAME_FIXES = {}
+
+
+def fix_name(name):
+    """이름 하나를 교정표로 바로잡는다(뒤에 붙은 중복 구분 숫자는 보존)."""
+    if not name:
+        return name
+    core = re.sub(r"\d+$", "", name)
+    tail = name[len(core):]
+    return NAME_FIXES.get(core, core) + tail
+
+
 def load_config():
     p = os.path.join(HERE, "config.json")
     if os.path.exists(p):
@@ -73,7 +95,7 @@ def trim_vehicle(v, mode, me):
     }
     if v.get("company"):
         out["company"] = v["company"]
-    am, pm = v.get("am_driver"), v.get("pm_driver")
+    am, pm = fix_name(v.get("am_driver")), fix_name(v.get("pm_driver"))
     if mode == "self":
         if me not in (am, pm):
             return None
@@ -92,13 +114,14 @@ def trim_furlough(f, mode, me):
     if not f:
         return f
     if mode == "full":
-        return f
+        return {r: " / ".join(" ".join(fix_name(n) for n in p.split() if n) for p in str(v).split("/")) if v else v
+                for r, v in f.items()}
     out = {}
     for route, val in f.items():
         parts = str(val).split("/") if val else []
         kept = []
         for part in parts:
-            names = [n for n in part.split() if n]
+            names = [fix_name(n) for n in part.split() if n]
             if mode == "self":
                 names = [n for n in names if n == me]
             else:
@@ -111,6 +134,8 @@ def trim_furlough(f, mode, me):
 
 
 def main():
+    global NAME_FIXES
+    NAME_FIXES = load_name_fixes()
     cfg = load_config()
     mode = cfg.get("nameMode", "mask")
     me = cfg.get("selfName", "박병수")
