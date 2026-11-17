@@ -857,9 +857,6 @@
       renderLookup();
     });
 
-    $('#openAll').addEventListener('click', function () { setTab('all'); });
-    $('#backLookup').addEventListener('click', function () { setTab('lookup'); });
-
     $('#weekChips').addEventListener('click', function (e) {
       var c = e.target.closest ? e.target.closest('[data-week]') : null;
       if (!c) return;
