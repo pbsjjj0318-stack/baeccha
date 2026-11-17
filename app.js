@@ -19,7 +19,7 @@
     loading: {},
     config: null,
     lookup: { date: null, route: null, shift: 'am' },
-    all: { date: null, route: 'all', find: '' },   // 전체시간표 화면
+    all: { date: null, route: 'all', find: '', cal: null },   // 전체시간표 화면
     open: null,
     booted: false
   };
@@ -469,11 +469,17 @@
   }
 
   /* ---------------- 그리기: 전체시간표 ---------------- */
-  /* 이번 달 1일~말일 + 지난·다음 달 자료가 있으면 그 날짜까지 함께 보여 준다 */
+  /* 달력에서 보고 있는 달 1일~말일 + 그 달 밖 자료가 있으면 그 날짜까지 함께 보여 준다 */
+  function calMonth() {
+    if (S.all.cal) return S.all.cal;
+    S.all.cal = kstToday().slice(0, 7);
+    return S.all.cal;
+  }
+
   function monthDates() {
-    var today = kstToday();
-    var y = parseInt(today.slice(0, 4), 10);
-    var m = parseInt(today.slice(5, 7), 10);
+    var ym = calMonth();
+    var y = parseInt(ym.slice(0, 4), 10);
+    var m = parseInt(ym.slice(5, 7), 10);
     var first = new Date(Date.UTC(y, m - 1, 1));
     var last = new Date(Date.UTC(y, m, 0));
     var out = [];
@@ -485,6 +491,43 @@
     });
     out.sort();
     return out;
+  }
+
+  function calendarHtml(ds, today) {
+    var ym = calMonth();
+    var y = parseInt(ym.slice(0, 4), 10);
+    var m = parseInt(ym.slice(5, 7), 10);
+    var firstW = new Date(Date.UTC(y, m - 1, 1)).getUTCDay();
+    var lastD = new Date(Date.UTC(y, m, 0)).getUTCDate();
+    var have = {};
+    S.index.forEach(function (x) { if (x.date.slice(0, 7) === ym) have[x.date] = true; });
+
+    var wd = ['일', '월', '화', '수', '목', '금', '토'];
+    var cells = wd.map(function (w, i) {
+      return '<div class="calwd' + (i === 0 ? ' sun' : (i === 6 ? ' sat' : '')) + '">' + w + '</div>';
+    });
+    for (var i = 0; i < firstW; i++) cells.push('<div class="calpad"></div>');
+    for (var d = 1; d <= lastD; d++) {
+      var dt = ym + '-' + (d < 10 ? '0' : '') + d;
+      var cls = 'cald';
+      if (have[dt]) cls += ' has';
+      if (dt === ds) cls += ' on';
+      if (dt === today) cls += ' today';
+      cells.push('<button type="button" class="' + cls + '" data-date="' + dt + '">' +
+        '<span class="dn">' + d + '</span></button>');
+    }
+
+    var prev = new Date(Date.UTC(y, m - 2, 1)).toISOString().slice(0, 7);
+    var next = new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 7);
+    return '<div class="cal">' +
+      '<div class="calhead">' +
+      '<button type="button" class="calnav" data-cal="' + prev + '">◀</button>' +
+      '<span class="calmonth">' + y + '년 ' + m + '월</span>' +
+      '<button type="button" class="calnav" data-cal="' + next + '">▶</button>' +
+      '</div>' +
+      '<div class="calgrid">' + cells.join('') + '</div>' +
+      '<div class="calfoot">파란 날은 배차표가 들어온 날입니다. 날짜를 누르면 그 날 시간표를 봅니다.</div>' +
+      '</div>';
   }
 
   function ensureAll() {
@@ -534,20 +577,12 @@
     var ds = S.all.date;
     var today = kstToday();
 
-    /* 날짜 칩 */
+    /* 날짜 달력 */
     var dc = $('#allDateChips');
     if (!S.index.length) {
       dc.innerHTML = '<span class="hint">날짜를 불러오는 중…</span>';
     } else {
-      var have_ = {};
-      S.index.forEach(function (x) { have_[x.date] = true; });
-      dc.innerHTML = monthDates().map(function (dt) {
-        var on = dt === ds;
-        var ok = !!have_[dt];
-        return '<button type="button" class="chip' + (on ? ' on' : '') + (ok ? '' : ' off') +
-          '" data-date="' + dt + '">' + dLabel(dt) + '<span class="w">' +
-          (ok ? wdOf(dt) : wdOf(dt) + (dt < today ? ' 자료 없음' : ' 작업 중')) + '</span></button>';
-      }).join('');
+      dc.innerHTML = calendarHtml(ds, today);
     }
 
     var d = ds ? S.data[ds] : undefined;
@@ -753,6 +788,14 @@
     });
 
     $('#allDateChips').addEventListener('click', function (e) {
+      var nav = e.target.closest ? e.target.closest('[data-cal]') : null;
+      if (nav) {
+        S.all.cal = nav.getAttribute('data-cal');
+        S.all.date = null;
+        ensureAll();
+        renderAll();
+        return;
+      }
       var c = e.target.closest ? e.target.closest('[data-date]') : null;
       if (!c) return;
       var ds = c.getAttribute('data-date');
