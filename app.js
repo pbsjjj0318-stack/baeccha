@@ -290,11 +290,13 @@
     html += cardHtml(todayDate, { todayDate: todayDate });
 
     var mon = mondayOf(today);
-    var w1 = weekDays(mon);
+    var w1 = weekDays(mon).filter(function (d) { return d >= today; });
     var w2 = weekDays(addDays(mon, 7));
-    html += '<h2 class="grouphead"><span>이번 주 내 배차</span><span class="grange">' +
-      dLabel(w1[0]) + '~' + dLabel(w1[6]) + '</span></h2>';
-    html += w1.map(function (d) { return cardHtml(d, { todayDate: todayDate }); }).join('');
+    if (w1.length) {
+      html += '<h2 class="grouphead"><span>이번 주 내 배차</span><span class="grange">' +
+        dLabel(w1[0]) + '~' + dLabel(w1[w1.length - 1]) + '</span></h2>';
+      html += w1.map(function (d) { return cardHtml(d, { todayDate: todayDate }); }).join('');
+    }
     html += '<h2 class="grouphead"><span>다음 주 내 배차</span><span class="grange">' +
       dLabel(w2[0]) + '~' + dLabel(w2[6]) + '</span></h2>';
     html += w2.map(function (d) { return cardHtml(d, { todayDate: todayDate }); }).join('');
