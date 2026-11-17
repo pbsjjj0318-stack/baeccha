@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>대진여객 배차</title>
+<meta name="description" content="대진여객 시내버스 배차 조회">
+<meta name="theme-color" content="#1d4ed8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="대진여객 배차">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<header class="topbar">
+  <h1 class="brand"><span class="bus">🚌</span><span>대진여객 배차</span></h1>
+  <p class="sub" id="topSub"></p>
+</header>
+
+<main id="viewMine" class="view">
+  <div class="personbar">
+    <button id="personBtn" class="personbtn" type="button" aria-haspopup="dialog">
+      <span class="ico">👤</span><span id="personName">박병수</span><span class="caret">▾</span>
+    </button>
+    <span class="personhint">이름을 눌러 다른 기사님 배차도 볼 수 있어요</span>
+  </div>
+  <div id="mine"></div>
+  <p class="footnote" id="mineFoot"></p>
+</main>
+
+<main id="viewLookup" class="view" hidden>
+  <div class="field">
+    <div class="label">날짜</div>
+    <div class="chips" id="dateChips"></div>
+  </div>
+  <div class="field">
+    <div class="label">노선</div>
+    <div class="chips" id="routeChips"></div>
+  </div>
+  <div class="segmented" id="shiftSeg" role="tablist" aria-label="오전 오후">
+    <button type="button" data-shift="am" role="tab">오전</button>
+    <button type="button" data-shift="pm" role="tab">오후</button>
+  </div>
+  <div class="listhead" id="listHead"></div>
+  <div class="rows" id="rows"></div>
+  <p class="footnote" id="lookupFoot"></p>
+</main>
+
+<nav class="tabbar">
+  <button class="tab active" type="button" data-tab="mine"><span class="ti">🚌</span>내 배차</button>
+  <button class="tab" type="button" data-tab="lookup"><span class="ti">🔎</span>조회</button>
+</nav>
+
+<div class="sheetwrap" id="sheetWrap" hidden>
+  <div class="sheetbackdrop" data-close="1"></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="이름 선택">
+    <div class="sheethead">
+      <strong>이름 선택</strong>
+      <button class="sheetclose" type="button" data-close="1">닫기</button>
+    </div>
+    <input id="nameSearch" class="search" type="search" placeholder="이름으로 찾기" autocomplete="off" enterkeyhint="search">
+    <div class="namelist" id="nameList"></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
