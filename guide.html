@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>사용 설명서 — 배차시간 및 식단표</title>
+<meta name="theme-color" content="#1d4ed8">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<style>
+:root{--bg:#eef1f6;--card:#fff;--line:#e4e9f2;--txt:#0b1220;--muted:#6b7688;--blue:#1d4ed8;--blue-bg:#eaf1ff;--blue-line:#c7d8ff;--red-bg:#fee2e2;--red:#dc2626}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;font-size:18px;line-height:1.5;padding-bottom:40px;-webkit-text-size-adjust:100%}
+header{background:var(--blue);color:#fff;padding:calc(18px + env(safe-area-inset-top)) 20px 18px}
+h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.5px}
+header p{margin:6px 0 0;font-size:15px;opacity:.9;font-weight:600}
+main{padding:16px}
+section{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px}
+h2{margin:0 0 12px;font-size:21px;font-weight:800;display:flex;align-items:center;gap:8px}
+ol,ul{margin:0;padding-left:22px}
+li{margin:9px 0;font-size:18px}
+li b{color:var(--blue)}
+.badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+.b{font-size:16px;font-weight:800;padding:5px 11px;border-radius:999px;background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-line);white-space:nowrap}
+.b.off{background:var(--red-bg);color:var(--red);border-color:#fecaca}
+.note{color:var(--muted);font-size:15px;margin:10px 0 0}
+.dl{display:inline-block;background:var(--blue);color:#fff;text-decoration:none;font-weight:800;font-size:18px;padding:13px 20px;border-radius:14px;margin-top:10px}
+</style>
+</head>
+<body>
+<header>
+  <h1>배차 · 식단표 사용법</h1>
+  <p>대진여객 시내버스 — 딱 세 가지만 알면 됩니다</p>
+</header>
+
+<main>
+
+<section>
+  <h2>1. 앱 열기</h2>
+  <ol>
+    <li>휴대폰 브라우저에서 주소를 엽니다.</li>
+    <li>화면을 <b>홈 화면에 추가</b> 하면 앱처럼 한 번에 열립니다.</li>
+  </ol>
+  <a class="dl" href="./">앱 열기</a>
+</section>
+
+<section>
+  <h2>2. 아래 버튼 세 개</h2>
+  <ul>
+    <li><b>🚌 내 배차</b> — 내 오늘 배차가 맨 위에 큼직하게 나옵니다.</li>
+    <li><b>🔎 조회</b> — 다른 기사님 배차를 찾아볼 때 씁니다.</li>
+    <li><b>🍚 식단표</b> — 이번 주 점심·저녁 메뉴입니다.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>3. 조회하는 순서</h2>
+  <ol>
+    <li><b>날짜</b>를 누릅니다.</li>
+    <li><b>노선</b>을 누릅니다.</li>
+    <li><b>오전 / 오후</b>를 고릅니다.</li>
+    <li>이름을 누르면 차량번호와 시각이 크게 펼쳐집니다.</li>
+  </ol>
+  <p class="note">내 배차 화면 맨 위의 <b>이름</b>을 눌러도 다른 기사님 배차를 볼 수 있습니다.</p>
+</section>
+
+<section>
+  <h2>4. 화면에 뜨는 표시</h2>
+  <div class="badges">
+    <span class="b">오전</span>
+    <span class="b">오후</span>
+    <span class="b">순번 3</span>
+    <span class="b">오늘</span>
+    <span class="b off">휴무</span>
+    <span class="b">예비</span>
+    <span class="b">≈</span>
+  </div>
+  <ul>
+    <li><b>휴무</b>(빨강) — 그날은 배차가 없습니다.</li>
+    <li><b>예비</b> — 예비 차량으로 대기하는 날입니다.</li>
+    <li><b>순번</b> — 그 차량에서 몇 번째로 운행하는지입니다.</li>
+    <li><b>≈</b> — 표에 분만 적혀 있어 앞 시각의 시(時)를 이어 붙인 시각입니다.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>5. 알아 두실 점</h2>
+  <ul>
+    <li>배차표는 카페 공지가 올라오면 자동으로 새로 반영됩니다.</li>
+    <li>인터넷이 잠깐 끊겨도 마지막으로 본 화면은 열립니다.</li>
+  </ul>
+</section>
+
+</main>
+</body>
+</html>
