@@ -263,8 +263,8 @@ button{font-family:inherit;cursor:pointer}
 
 /* ===== 만든이 표시 (화면 하단 고정, 탭바 바로 위) ===== */
 .credit{
-  position:fixed;left:0;right:0;bottom:calc(88px + env(safe-area-inset-bottom));
-  z-index:29;text-align:center;font-size:12px;font-weight:800;letter-spacing:-.2px;
+  position:fixed;left:0;right:0;bottom:calc(98px + env(safe-area-inset-bottom));
+  z-index:29;text-align:left;padding-left:16px;font-size:12px;font-weight:800;letter-spacing:-.2px;
   color:#5b6577;pointer-events:none;
 }
 .credit span{
