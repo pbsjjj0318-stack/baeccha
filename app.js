@@ -19,7 +19,7 @@
     loading: {},
     config: null,
     lookup: { date: null, route: null, shift: 'am' },
-    all: { date: null, route: 'all' },   // 전체시간표 화면
+    all: { date: null, route: 'all', find: '' },   // 전체시간표 화면
     open: null,
     booted: false
   };
@@ -546,13 +546,22 @@
     }
 
     var list = allEntries(d, S.all.route);
+    var q = norm(S.all.find || '');
+    if (q) {
+      var exact = list.filter(function (e) { return norm(e.vehicle || '') === q || norm(e.driver || '') === q; });
+      list = exact.length ? exact : list.filter(function (e) {
+        return norm(e.vehicle || '').indexOf(q) >= 0 || norm(e.driver || '').indexOf(q) >= 0;
+      });
+    }
     var p = norm(S.person);
-    head.innerHTML = '<span>' + fullLabel(ds) + ' 전체시간표</span><span class="cnt">' + list.length + '회</span>';
+    head.innerHTML = '<span>' + fullLabel(ds) + (q ? ' · 찾기' : ' 전체시간표') + '</span><span class="cnt">' +
+      list.length + '회</span>';
 
     if (!list.length) {
-      box.innerHTML = '<div class="emptybox">' +
-        (S.all.route === 'all' ? '이 날짜 배차표에 옮겨 적은 회차가 없습니다.'
-          : esc(S.all.route) + '번은 이 날짜 표에 아직 없습니다.<br>지금은 115-1·189-1 두 노선부터 들어 있습니다.') +
+      box.innerHTML = '<div class="emptybox">' + (q
+        ? '‘' + esc(S.all.find) + '’ 에 해당하는 차량·이름이 없습니다.<br>차량번호를 다시 확인해 주세요.'
+        : (S.all.route === 'all' ? '이 날짜 배차표에 옮겨 적은 회차가 없습니다.'
+          : esc(S.all.route) + '번은 이 날짜 표에 아직 없습니다.<br>지금은 115-1·189-1 두 노선부터 들어 있습니다.')) +
         '</div>';
       $('#allFoot').innerHTML = '';
       return;
@@ -719,6 +728,11 @@
         loadDate(ds).then(function () { delete S.loading[ds]; renderAll(); });
         return;
       }
+      renderAll();
+    });
+
+    $('#allFind').addEventListener('input', function (e) {
+      S.all.find = e.target.value;
       renderAll();
     });
 
