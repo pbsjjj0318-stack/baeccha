@@ -127,8 +127,18 @@
     return false;
   }
 
-  function tripList(v, shift, route) {
+  /* 교대 경계: 노선 기본값. 189·187 은 회차가 적은 차량이 한 회차 앞당겨진다(6회=3, 5회=2). */
+  function boundaryOf(route, v) {
     var b = BOUNDARY[route];
+    if (!b) return 0;
+    if ((route === '189' || route === '187') && v && v.trips && v.trips.length) {
+      return Math.max(1, v.trips.length - 3);
+    }
+    return b;
+  }
+
+  function tripList(v, shift, route) {
+    var b = boundaryOf(route, v);
     var trips = v.trips || [];
     if (!b) return trips.slice();
     return trips.filter(function (t) { return shift === 'am' ? t.no <= b : t.no > b; });
@@ -295,11 +305,11 @@
     if (w1.length) {
       html += '<h2 class="grouphead"><span>이번 주 내 배차</span><span class="grange">' +
         dLabel(w1[0]) + '~' + dLabel(w1[w1.length - 1]) + '</span></h2>';
-      html += w1.map(function (d) { return cardHtml(d, { todayDate: todayDate }); }).join('');
+      html += w1.map(function (d) { return cardHtml(d, { todayDate: null }); }).join('');
     }
     html += '<h2 class="grouphead"><span>다음 주 내 배차</span><span class="grange">' +
       dLabel(w2[0]) + '~' + dLabel(w2[6]) + '</span></h2>';
-    html += w2.map(function (d) { return cardHtml(d, { todayDate: todayDate }); }).join('');
+    html += w2.map(function (d) { return cardHtml(d, { todayDate: null }); }).join('');
     wrap.innerHTML = html;
 
     var first = S.index.length ? S.index[0].date : '';
@@ -410,9 +420,10 @@
       return;
     }
 
-    var b = BOUNDARY[route];
     var mx = maxTripNo(r);
-    var rangeTxt = b ? (shift === 'am' ? '오전 1~' + b + '회' : '오후 ' + (b + 1) + '~' + mx + '회')
+    var bb = boundaryOf(route, (r.vehicles || [])[0]);
+    var rangeTxt = BOUNDARY[route]
+      ? (shift === 'am' ? '오전 1~' + bb + '회' : '오후 ' + (bb + 1) + '~' + mx + '회')
       : '전체 회차';
     head.innerHTML = '<span>' + esc(route) + '번 · ' + rangeTxt + '</span><span class="cnt">' +
       (r.vehicles || []).length + '대</span>';
@@ -452,7 +463,7 @@
     box.innerHTML = html || '<div class="emptybox">이 교대에 근무자가 없습니다.</div>';
 
     var foot = '≈ 표에 분(分)만 인쇄된 칸은 위 회차의 시(時)를 이어받아 복원한 시각입니다.';
-    if (!b) foot += '<br>이 노선은 표에 오전/오후 굵은 구분선이 없어 차량 전체 회차를 보여줍니다.';
+    if (!BOUNDARY[route]) foot += '<br>이 노선은 표에 오전/오후 굵은 구분선이 없어 차량 전체 회차를 보여줍니다.';
     $('#lookupFoot').innerHTML = foot;
   }
 
@@ -466,8 +477,8 @@
     }
   }
 
-  function shiftOfTrip(t, route) {
-    var b = BOUNDARY[route];
+  function shiftOfTrip(t, route, v) {
+    var b = boundaryOf(route, v);
     if (!b) return null;
     return t.no <= b ? 'am' : 'pm';
   }
@@ -480,7 +491,7 @@
       (r.vehicles || []).forEach(function (v) {
         (v.trips || []).forEach(function (t) {
           if (!t.depart) return;
-          var sh = shiftOfTrip(t, r.route);
+          var sh = shiftOfTrip(t, r.route, v);
           var driver = sh === 'pm' ? (v.pm_driver || v.am_driver) : (sh === 'am' ? (v.am_driver || v.pm_driver)
             : (v.am_driver || v.pm_driver));
           out.push({
