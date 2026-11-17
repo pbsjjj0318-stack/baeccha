@@ -435,10 +435,6 @@
         ? trips.map(function (t) { return tripHtml(t, false); }).join('')
         : '<span class="hint">이 교대 회차 없음</span>';
       var bigHtml = trips.map(function (t) { return tripHtml(t, true); }).join('');
-      var saveBtn = (driver && !mine)
-        ? '<button type="button" class="rowsave" data-save="' + esc(driver) + '">' +
-          esc(driver) + ' 님을 내 이름으로 저장</button>'
-        : '';
       var unsure = unc
         ? '<div class="rowunsure">이 줄은 표 판독이 불확실합니다. 다른 이름일 수 있습니다.</div>'
         : '';
@@ -447,7 +443,7 @@
         '<span class="rowveh">' + esc(veh) + '</span>' +
         (mine ? '<span class="badge">내 배차</span>' : '') + '</div>' +
         '<div class="rtrips">' + tripsHtml + '</div>' +
-        '<div class="rbig">' + bigHtml + '</div>' + unsure + saveBtn + '</div>';
+        '<div class="rbig">' + bigHtml + '</div>' + unsure + '</div>';
     }).join('');
 
     box.innerHTML = html || '<div class="emptybox">이 교대에 근무자가 없습니다.</div>';
@@ -892,8 +888,6 @@
     });
 
     $('#rows').addEventListener('click', function (e) {
-      var save = e.target.closest ? e.target.closest('[data-save]') : null;
-      if (save) { e.stopPropagation(); setPerson(save.getAttribute('data-save')); return; }
       var row = e.target.closest ? e.target.closest('.row') : null;
       if (!row) return;
       var key = row.getAttribute('data-key');
