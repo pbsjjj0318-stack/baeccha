@@ -33,7 +33,7 @@ button{font-family:inherit;cursor:pointer}
   backdrop-filter:saturate(180%) blur(8px);
 }
 .brand{margin:0;font-size:23px;font-weight:800;letter-spacing:-.8px;display:flex;align-items:center;gap:7px;white-space:nowrap}
-.brand .bus{font-size:21px;line-height:1}
+.brand .bus{width:28px;height:28px;object-fit:contain;display:block;flex:0 0 auto}
 .sub{margin:5px 0 0;color:var(--muted);font-size:15px;font-weight:700}
 
 /* ===== 공통 ===== */
