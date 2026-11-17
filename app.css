@@ -261,3 +261,7 @@ button{font-family:inherit;cursor:pointer}
 /* 전체 시간표로 가는 링크 버튼 */
 .linkbtn{display:block;width:100%;margin:16px 0 4px;padding:13px 14px;border:1px solid var(--line);background:#fff;border-radius:14px;font:inherit;font-size:15px;font-weight:800;color:#1d4ed8}
 .linkbtn.back{margin:0 0 12px;color:#5b6577}
+
+/* 상단 우측 회사명 */
+.toprow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.corp{font-size:14px;font-weight:800;color:#1d4ed8;white-space:nowrap;letter-spacing:-.3px}
