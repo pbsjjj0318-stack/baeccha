@@ -94,7 +94,7 @@ button{font-family:inherit;cursor:pointer}
 
 .pill{display:inline-block;border-radius:999px;padding:3px 11px;font-size:13px;font-weight:800;background:#eaeef5;color:#5b6577;white-space:nowrap}
 .card.today .pill-shift{background:var(--blue);color:#fff}
-.pill-off{background:#e9edf4;color:#4a5568}
+.pill-off{background:#fee2e2;color:#dc2626}
 
 /* ===== 조회 ===== */
 .field{margin:0 0 15px}
