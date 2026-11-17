@@ -333,7 +333,7 @@
   function ensureLookup() {
     if (!S.index.length) return;
     var dates = S.index.map(function (x) { return x.date; });
-    if (!S.lookup.date || dates.indexOf(S.lookup.date) < 0) {
+    if (!S.lookup.date) {
       var today = kstToday();
       S.lookup.date = dates.indexOf(today) >= 0 ? today : dates[0];
     }
@@ -356,19 +356,7 @@
     if (!S.index.length) {
       dc.innerHTML = '<span class="hint">날짜를 불러오는 중…</span>';
     } else {
-      dc.innerHTML = S.index.map(function (x) {
-        var on = x.date === S.lookup.date;
-        return '<button type="button" class="chip' + (on ? ' on' : '') + '" data-date="' + x.date + '">' +
-          dLabel(x.date) + '<span class="w">' + wdOf(x.date) + '</span></button>';
-      }).join('');
-      var onChip = dc.querySelector('.chip.on');
-      if (onChip && dc.clientWidth) {
-        var cr = dc.getBoundingClientRect();
-        var or = onChip.getBoundingClientRect();
-        if (or.left < cr.left || or.right > cr.right) {
-          dc.scrollLeft += (or.left - cr.left) - (cr.width - or.width) / 2;
-        }
-      }
+      dc.innerHTML = calendarHtml('lookup', S.lookup.date, today);
     }
 
     /* 노선 칩 */
@@ -470,14 +458,15 @@
 
   /* ---------------- 그리기: 전체시간표 ---------------- */
   /* 달력에서 보고 있는 달 1일~말일 + 그 달 밖 자료가 있으면 그 날짜까지 함께 보여 준다 */
-  function calMonth() {
-    if (S.all.cal) return S.all.cal;
-    S.all.cal = kstToday().slice(0, 7);
-    return S.all.cal;
+  function calMonth(scope) {
+    var box = S[scope];
+    if (box.cal) return box.cal;
+    box.cal = kstToday().slice(0, 7);
+    return box.cal;
   }
 
-  function monthDates() {
-    var ym = calMonth();
+  function monthDates(scope) {
+    var ym = calMonth(scope || 'all');
     var y = parseInt(ym.slice(0, 4), 10);
     var m = parseInt(ym.slice(5, 7), 10);
     var first = new Date(Date.UTC(y, m - 1, 1));
@@ -493,8 +482,8 @@
     return out;
   }
 
-  function calendarHtml(ds, today) {
-    var ym = calMonth();
+  function calendarHtml(scope, ds, today) {
+    var ym = calMonth(scope);
     var y = parseInt(ym.slice(0, 4), 10);
     var m = parseInt(ym.slice(5, 7), 10);
     var firstW = new Date(Date.UTC(y, m - 1, 1)).getUTCDay();
@@ -532,7 +521,7 @@
 
   function ensureAll() {
     if (!S.index.length) return;
-    var dates = monthDates();
+    var dates = monthDates('all');
     if (!S.all.date || dates.indexOf(S.all.date) < 0) {
       var today = kstToday();
       S.all.date = dates.indexOf(today) >= 0 ? today : (S.index.length ? S.index[0].date : dates[0]);
@@ -649,8 +638,8 @@
       var mine = !!e.driver && norm(e.driver) === p;
       rows.push('<div class="arow' + (mine ? ' mine' : '') + '">' +
         '<b class="atime">' + esc(e.time) + (e.derived ? '<span class="approx">≈</span>' : '') + '</b>' +
-        '<span class="aroute">' + esc(e.route) + '</span>' +
-        '<span class="aveh">' + esc(e.vehicle ? (e.vehicle + '번') : (e.company || '—')) + '</span>' +
+        '<span class="aveh"><b class="vnum">' + esc(e.vehicle ? (e.vehicle + '번') : (e.company || '—')) + '</b>' +
+        '<span class="aroute">' + esc(e.route) + '</span></span>' +
         '<span class="aname">' + (e.driver ? esc(e.driver) : '<span class="muted">이름 없음</span>') + '</span>' +
         '<span class="ano">' + e.no + '회' +
         (e.shift ? '<i>' + (e.shift === 'am' ? '오전' : '오후') + '</i>' : '') + '</span>' +
@@ -762,6 +751,21 @@
     });
 
     $('#dateChips').addEventListener('click', function (e) {
+      var nav2 = e.target.closest ? e.target.closest('[data-cal]') : null;
+      if (nav2) {
+        var ym2 = nav2.getAttribute('data-cal');
+        S.lookup.cal = ym2;
+        if ((S.lookup.date || '').slice(0, 7) !== ym2) {
+          var pick = null;
+          S.index.forEach(function (x) { if (!pick && x.date.slice(0, 7) === ym2) pick = x.date; });
+          S.lookup.date = pick || (kstToday().slice(0, 7) === ym2 ? kstToday() : ym2 + '-01');
+          S.lookup.route = null;
+        }
+        S.open = null;
+        ensureLookup();
+        renderLookup();
+        return;
+      }
       var c = e.target.closest ? e.target.closest('[data-date]') : null;
       if (!c) return;
       S.lookup.date = c.getAttribute('data-date');
