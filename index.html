@@ -13,7 +13,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="stylesheet" href="app.css?v=43">
+<link rel="stylesheet" href="app.css?v=44">
 </head>
 <body>
 
@@ -30,13 +30,16 @@
     <button id="personBtn" class="personbtn" type="button" aria-haspopup="dialog">
       <span class="ico">👤</span><span id="personName">박병수</span><span class="caret">▾</span>
     </button>
-    <span class="personhint">이름을 눌러 다른 기사님 배차도 볼 수 있어요 (차량번호로도 찾아요)</span>
+    <span class="personhint">이름을 눌러 다른 기사님 배차도 볼 수 있어요</span>
   </div>
   <div id="mine"></div>
   <p class="footnote" id="mineFoot"></p>
 </main>
 
 <main id="viewLookup" class="view" hidden>
+  <div class="field">
+    <input id="lookupFind" class="search" type="search" placeholder="이름·차량번호로 찾기 (예: 64)" autocomplete="off" enterkeyhint="search">
+  </div>
   <div class="field">
     <div class="label">날짜</div>
     <div class="chips" id="dateChips"></div>
@@ -94,11 +97,11 @@
       <strong>이름 선택</strong>
       <button class="sheetclose" type="button" data-close="1">닫기</button>
     </div>
-    <input id="nameSearch" class="search" type="search" placeholder="이름·차량번호로 찾기" autocomplete="off" enterkeyhint="search">
+    <input id="nameSearch" class="search" type="search" placeholder="이름으로 찾기" autocomplete="off" enterkeyhint="search">
     <div class="namelist" id="nameList"></div>
   </div>
 </div>
 
-<script src="app.js?v=43"></script>
+<script src="app.js?v=44"></script>
 </body>
 </html>

@@ -216,8 +216,6 @@ button{font-family:inherit;cursor:pointer}
   font-size:19px;font-weight:800;color:var(--txt);text-align:left;
 }
 .nameitem .ck{font-size:13px;font-weight:800;color:var(--blue);background:#eaf1ff;border-radius:999px;padding:3px 10px}
-.nameitem .ntags{display:flex;align-items:center;gap:6px;flex:none}
-.nameitem .vtag{font-size:13px;font-weight:800;color:#5b6b82;background:#f1f4f9;border-radius:999px;padding:3px 10px;white-space:nowrap}
 .nameitem.cur{color:var(--blue)}
 
 /* ===== 넓은 화면(태블릿·PC)에서는 폰 화면 너비로 가운데 ===== */

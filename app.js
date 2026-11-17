@@ -18,7 +18,7 @@
     data: {},           // date -> 배차 JSON | null
     loading: {},
     config: null,
-    lookup: { date: null, route: null, shift: 'am' },
+    lookup: { date: null, route: null, shift: 'am', find: '' },
     all: { date: null, route: 'all', find: '', cal: null },   // 전체시간표 화면
     menu: { data: null, loading: false, week: 0 },            // 식단표 화면
     open: null,
@@ -402,6 +402,8 @@
     }
     var r = null;
     (d.routes || []).forEach(function (x) { if (x.route === route) r = x; });
+    var q = norm(S.lookup.find || '');
+    if (q) { renderFindRows(ds, d, q); return; }
     if (!r) {
       head.innerHTML = '<span>' + fullLabel(ds) + ' · ' + esc(route || '') + '번</span><span class="cnt">준비 중</span>';
       box.innerHTML = '<div class="emptybox">' + fullLabel(ds) + ' 표에 ' + esc(route || '') +
@@ -455,6 +457,68 @@
     var foot = '≈ 표에 분(分)만 인쇄된 칸은 위 회차의 시(時)를 이어받아 복원한 시각입니다.';
     if (!BOUNDARY[route]) foot += '<br>이 노선은 표에 오전/오후 굵은 구분선이 없어 차량 전체 회차를 보여줍니다.';
     $('#lookupFoot').innerHTML = foot;
+  }
+
+  /* 이름이나 차량번호로 그 날 전체 노선에서 찾기 */
+  function renderFindRows(ds, d, q) {
+    var box = $('#rows');
+    var head = $('#listHead');
+    var p = norm(S.person);
+    var hits = [];
+    (d.routes || []).forEach(function (r) {
+      (r.vehicles || []).forEach(function (v) {
+        var vehHit = !!v.vehicle && norm(v.vehicle).indexOf(q) >= 0;
+        var shifts = [];
+        if (vehHit) shifts = ['am', 'pm'];
+        else {
+          if (v.am_driver && norm(v.am_driver).indexOf(q) >= 0) shifts.push('am');
+          if (v.pm_driver && norm(v.pm_driver).indexOf(q) >= 0) shifts.push('pm');
+        }
+        shifts.forEach(function (sh) {
+          var driver = sh === 'am' ? v.am_driver : v.pm_driver;
+          if (!driver) return;
+          hits.push({
+            route: r.route, v: v, shift: sh, driver: driver,
+            exact: !!v.vehicle && norm(v.vehicle) === q
+          });
+        });
+      });
+    });
+
+    head.innerHTML = '<span>' + fullLabel(ds) + ' · 찾기</span><span class="cnt">' + hits.length + '건</span>';
+    if (!hits.length) {
+      box.innerHTML = '<div class="emptybox">‘' + esc(S.lookup.find) +
+        '’ 에 해당하는 이름·차량이 없습니다.<br>차량번호를 다시 확인해 주세요.</div>';
+      $('#lookupFoot').innerHTML = '';
+      return;
+    }
+
+    hits.sort(function (a, b) {
+      if (a.exact !== b.exact) return a.exact ? -1 : 1;
+      if (a.route !== b.route) return a.route < b.route ? -1 : 1;
+      return (a.v.no || 0) - (b.v.no || 0);
+    });
+
+    box.innerHTML = hits.map(function (h) {
+      var v = h.v, sh = h.shift, driver = h.driver;
+      var mine = norm(driver) === p;
+      var unc = isUncertainRow(ds, h.route, v.no, sh);
+      var trips = tripList(v, sh, h.route);
+      var veh = esc(h.route) + '번 · ' + (v.no ? '순번 ' + v.no + ' · ' : '') +
+        (v.vehicle ? '차량 ' + esc(v.vehicle) + '번' : esc(v.company || '차량 정보 없음')) +
+        ' · ' + (sh === 'am' ? '오전' : '오후');
+      var tripsHtml = trips.length
+        ? trips.map(function (t) { return tripHtml(t, false); }).join('')
+        : '<span class="hint">이 교대 회차 없음</span>';
+      return '<div class="row' + (mine ? ' mine' : '') + '" role="button" tabindex="0" data-goto="' +
+        esc(h.route + '|' + sh + '|' + v.no) + '">' +
+        '<div class="rowline"><span class="rowname">' + esc(driver) + (unc ? '<span class="qmark">?</span>' : '') +
+        '</span><span class="rowveh">' + veh + '</span>' +
+        (mine ? '<span class="badge">내 배차</span>' : '') + '</div>' +
+        '<div class="rtrips">' + tripsHtml + '</div></div>';
+    }).join('');
+
+    $('#lookupFoot').innerHTML = '날짜 안의 모든 노선·오전·오후에서 찾았습니다. 줄을 누르면 그 노선 표로 이동합니다.';
   }
 
   /* ---------------- 그리기: 전체시간표 ---------------- */
@@ -684,60 +748,17 @@
     return (S.config && S.config.defaultPerson) || FALLBACK_PERSON;
   }
 
-  /* 이름별로 어떤 차량을 모는지 (이름·차량번호 둘 다로 찾기 위해) */
-  function nameVehicleMap() {
-    var map = {};
-    Object.keys(S.data).forEach(function (ds) {
-      var d = S.data[ds];
-      if (!d || !d.routes) return;
-      d.routes.forEach(function (r) {
-        (r.vehicles || []).forEach(function (v) {
-          if (!v.vehicle) return;
-          [v.am_driver, v.pm_driver].forEach(function (n) {
-            if (!n) return;
-            if (!map[n]) map[n] = {};
-            map[n][v.vehicle] = r.route;
-          });
-        });
-      });
-    });
-    return map;
-  }
-
   function renderNameList(filter) {
     var q = norm(filter || '');
-    var veh = nameVehicleMap();
-    var hitVeh = function (n) {
-      var vs = veh[n] || {};
-      return Object.keys(vs).some(function (v) { return norm(v).indexOf(q) >= 0; });
-    };
-    var list = allNames().filter(function (n) {
-      return !q || norm(n).indexOf(q) >= 0 || hitVeh(n);
-    });
-    if (q) {
-      var rank = function (n) {
-        if (norm(n) === q) return 0;
-        if (hitVeh(n)) return 1;
-        if (norm(n).indexOf(q) === 0) return 2;
-        return 3;
-      };
-      list.sort(function (a, b) { return rank(a) - rank(b) || a.localeCompare(b, 'ko'); });
-    }
+    var list = allNames().filter(function (n) { return !q || norm(n).indexOf(q) >= 0; });
     var cur = norm(S.person);
     $('#nameList').innerHTML = list.length
       ? list.map(function (n) {
         var on = norm(n) === cur;
-        var vs = Object.keys(veh[n] || {});
-        vs.sort(function (a, b) { return Number(a) - Number(b); });
-        var tag = vs.length
-          ? '<span class="vtag">' + vs.slice(0, 3).map(function (v) { return esc(v) + '번'; }).join(' · ') +
-            (vs.length > 3 ? ' …' : '') + '</span>'
-          : '';
         return '<button type="button" class="nameitem' + (on ? ' cur' : '') + '" data-name="' + esc(n) + '">' +
-          '<span class="nm">' + esc(n) + '</span>' +
-          '<span class="ntags">' + tag + (on ? '<span class="ck">내 배차</span>' : '') + '</span>' + '</button>';
+          '<span>' + esc(n) + '</span>' + (on ? '<span class="ck">내 배차</span>' : '') + '</button>';
       }).join('')
-      : '<div class="emptybox">그런 이름이나 차량번호가 없어요.<br>차량번호를 다시 확인해 주세요.</div>';
+      : '<div class="emptybox">그런 이름이 없습니다.</div>';
   }
 
   function openSheet() {
@@ -900,6 +921,12 @@
       renderLookup();
     });
 
+    $('#lookupFind').addEventListener('input', function (e) {
+      S.lookup.find = e.target.value;
+      S.open = null;
+      renderRows();
+    });
+
     $('#weekChips').addEventListener('click', function (e) {
       var c = e.target.closest ? e.target.closest('[data-week]') : null;
       if (!c) return;
@@ -937,6 +964,17 @@
     $('#rows').addEventListener('click', function (e) {
       var save = e.target.closest ? e.target.closest('[data-save]') : null;
       if (save) { e.stopPropagation(); setPerson(save.getAttribute('data-save')); return; }
+      var go = e.target.closest ? e.target.closest('[data-goto]') : null;
+      if (go) {
+        var a = go.getAttribute('data-goto').split('|');
+        S.lookup.route = a[0];
+        S.lookup.shift = a[1];
+        S.lookup.find = '';
+        $('#lookupFind').value = '';
+        S.open = S.lookup.date + '|' + a[0] + '|' + a[1] + '|' + a[2];
+        renderLookup();
+        return;
+      }
       var row = e.target.closest ? e.target.closest('.row') : null;
       if (!row) return;
       var key = row.getAttribute('data-key');
