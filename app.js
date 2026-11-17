@@ -684,17 +684,60 @@
     return (S.config && S.config.defaultPerson) || FALLBACK_PERSON;
   }
 
+  /* 이름별로 어떤 차량을 모는지 (이름·차량번호 둘 다로 찾기 위해) */
+  function nameVehicleMap() {
+    var map = {};
+    Object.keys(S.data).forEach(function (ds) {
+      var d = S.data[ds];
+      if (!d || !d.routes) return;
+      d.routes.forEach(function (r) {
+        (r.vehicles || []).forEach(function (v) {
+          if (!v.vehicle) return;
+          [v.am_driver, v.pm_driver].forEach(function (n) {
+            if (!n) return;
+            if (!map[n]) map[n] = {};
+            map[n][v.vehicle] = r.route;
+          });
+        });
+      });
+    });
+    return map;
+  }
+
   function renderNameList(filter) {
     var q = norm(filter || '');
-    var list = allNames().filter(function (n) { return !q || norm(n).indexOf(q) >= 0; });
+    var veh = nameVehicleMap();
+    var hitVeh = function (n) {
+      var vs = veh[n] || {};
+      return Object.keys(vs).some(function (v) { return norm(v).indexOf(q) >= 0; });
+    };
+    var list = allNames().filter(function (n) {
+      return !q || norm(n).indexOf(q) >= 0 || hitVeh(n);
+    });
+    if (q) {
+      var rank = function (n) {
+        if (norm(n) === q) return 0;
+        if (hitVeh(n)) return 1;
+        if (norm(n).indexOf(q) === 0) return 2;
+        return 3;
+      };
+      list.sort(function (a, b) { return rank(a) - rank(b) || a.localeCompare(b, 'ko'); });
+    }
     var cur = norm(S.person);
     $('#nameList').innerHTML = list.length
       ? list.map(function (n) {
         var on = norm(n) === cur;
+        var vs = Object.keys(veh[n] || {});
+        vs.sort(function (a, b) { return Number(a) - Number(b); });
+        var tag = vs.length
+          ? '<span class="vtag">' + vs.slice(0, 3).map(function (v) { return esc(v) + '번'; }).join(' · ') +
+            (vs.length > 3 ? ' …' : '') + '</span>'
+          : '';
         return '<button type="button" class="nameitem' + (on ? ' cur' : '') + '" data-name="' + esc(n) + '">' +
-          '<span>' + esc(n) + '</span>' + (on ? '<span class="ck">내 배차</span>' : '') + '</button>';
+          '<span class="nm">' + esc(n) + '</span>' +
+          '<span class="ntags">' + tag + (on ? '<span class="ck">내 배차</span>' : '') + '</span>' + '</button>';
       }).join('')
-      : '<div class="emptybox">그런 이름이 없습니다.</div>';
+      : '<div class="emptybox">그런 이름이나 차량번호가 없어요.<br>차량번호를 다시 확인해 주세요.</div>';
   }
 
   function openSheet() {
