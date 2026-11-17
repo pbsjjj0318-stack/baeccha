@@ -622,7 +622,7 @@
       });
     }
     var p = norm(S.person);
-    head.innerHTML = '<span>' + fullLabel(ds) + (q ? ' · 찾기' : ' 전체시간표') + '</span><span class="cnt">' +
+    head.innerHTML = '<span>' + fullLabel(ds) + (q ? ' · 찾기' : ' 시간표') + '</span><span class="cnt">' +
       list.length + '회</span>';
 
     if (!list.length) {
