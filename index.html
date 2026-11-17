@@ -13,7 +13,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="stylesheet" href="app.css?v=37">
+<link rel="stylesheet" href="app.css?v=38">
 </head>
 <body>
 
@@ -49,9 +49,11 @@
   <div class="listhead" id="listHead"></div>
   <div class="rows" id="rows"></div>
   <p class="footnote" id="lookupFoot"></p>
+  <button class="linkbtn" type="button" id="openAll">📋 전체 시간표 보기</button>
 </main>
 
 <main id="viewAll" class="view" hidden>
+  <button class="linkbtn back" type="button" id="backLookup">← 조회로 돌아가기</button>
   <div class="field">
     <input id="allFind" class="search" type="search" inputmode="numeric" placeholder="차량번호로 찾기 (예: 64)" autocomplete="off" enterkeyhint="search">
   </div>
@@ -81,7 +83,6 @@
 <nav class="tabbar">
   <button class="tab active" type="button" data-tab="mine"><span class="ti">🚌</span>내 배차</button>
   <button class="tab" type="button" data-tab="lookup"><span class="ti">🔎</span>조회</button>
-  <button class="tab" type="button" data-tab="all"><span class="ti">📋</span>시간표</button>
   <button class="tab" type="button" data-tab="menu"><span class="ti">🍚</span>식단표</button>
 </nav>
 
@@ -97,6 +98,6 @@
   </div>
 </div>
 
-<script src="app.js?v=37"></script>
+<script src="app.js?v=38"></script>
 </body>
 </html>
