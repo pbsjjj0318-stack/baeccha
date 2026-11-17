@@ -546,7 +546,7 @@
         var ok = !!have_[dt];
         return '<button type="button" class="chip' + (on ? ' on' : '') + (ok ? '' : ' off') +
           '" data-date="' + dt + '">' + dLabel(dt) + '<span class="w">' +
-          (ok ? wdOf(dt) : wdOf(dt) + ' 준비 중') + '</span></button>';
+          (ok ? wdOf(dt) : wdOf(dt) + (dt < today ? ' 자료 없음' : ' 작업 중')) + '</span></button>';
       }).join('');
     }
 
