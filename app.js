@@ -257,8 +257,8 @@
     }
     if (info.kind === 'none') {
       return '<div class="' + cls + ' empty"><div class="ctop">' + dateBit +
-        '<span class="pill">배차 없음</span></div>' +
-        '<div class="cnote">이 날짜 표에 내 이름이 없습니다.</div></div>';
+        '<span class="pill pill-off">휴무</span></div>' +
+        '<div class="cnote">이 날은 배차가 없습니다.</div></div>';
     }
 
     var pills = info.items.map(function (it) {
