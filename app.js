@@ -643,6 +643,23 @@
     boot();
   }
 
+  /* 화면 점검용 통로 (앱 동작에는 영향 없음) */
+  window.__dj = {
+    state: S,
+    render: render,
+    setTab: setTab,
+    lookup: function (o) {
+      o = o || {};
+      if (o.date) S.lookup.date = o.date;
+      if (o.route) S.lookup.route = o.route;
+      if (o.shift) S.lookup.shift = o.shift;
+      S.open = null;
+      render();
+    },
+    person: function (n) { S.person = n; render(); },
+    resolveDay: resolveDay
+  };
+
   /* 서비스 워커 (홈 화면 앱처럼 동작) */
   if ('serviceWorker' in navigator && location.protocol === 'https:') {
     window.addEventListener('load', function () {
