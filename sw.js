@@ -1,6 +1,6 @@
 /* 대진여객 배차 — 오프라인에서도 열리도록 최소 캐시만 둡니다. (네트워크 우선) */
-var CACHE = 'dj-baeccha-v46';
-var ASSETS = ['./', 'index.html', 'app.css?v=46', 'app.js?v=46', 'manifest.json',
+var CACHE = 'dj-baeccha-v47';
+var ASSETS = ['./', 'index.html', 'app.css?v=47', 'app.js?v=47', 'manifest.json',
   'icons/icon.svg', 'icons/icon-192.png', 'icons/apple-touch-icon.png'];
 
 self.addEventListener('install', function (e) {
