@@ -351,6 +351,10 @@
         return '<button type="button" class="chip' + (on ? ' on' : '') + '" data-date="' + x.date + '">' +
           dLabel(x.date) + '<span class="w">' + wdOf(x.date) + '</span></button>';
       }).join('');
+      var onChip = dc.querySelector('.chip.on');
+      if (onChip && dc.clientWidth) {
+        dc.scrollLeft = Math.max(0, onChip.offsetLeft - (dc.clientWidth - onChip.clientWidth) / 2);
+      }
     }
 
     /* 노선 칩 */
@@ -530,6 +534,7 @@
   function setTab(tab) {
     if (tab !== 'mine' && tab !== 'lookup') return;
     S.tab = tab;
+    storeSet('dj_tab_v1', tab);
     render();
     window.scrollTo(0, 0);
   }
@@ -597,9 +602,38 @@
   }
 
   /* ---------------- 시작 ---------------- */
+  var lastLoad = 0;
+
+  /* 앱을 다시 열었을 때 새 배차표를 다시 확인한다 */
+  function refreshData() {
+    return loadIndex().then(function () {
+      var today = kstToday();
+      var todo = S.index.map(function (x) { return x.date; }).filter(function (d) {
+        return d >= today || !Object.prototype.hasOwnProperty.call(S.data, d);
+      });
+      if (!todo.length) { render(); return null; }
+      todo.forEach(function (d) {
+        if (Object.prototype.hasOwnProperty.call(S.data, d)) delete S.data[d];
+        S.loading[d] = true;
+      });
+      render();
+      return Promise.all(todo.map(function (d) {
+        return loadDate(d).then(function () { delete S.loading[d]; });
+      })).then(function () { render(); });
+    }).catch(function () {});
+  }
+
   function boot() {
     wire();
     ensureStart();
+    lastLoad = Date.now();
+    S.tab = storeGet('dj_tab_v1') === 'lookup' ? 'lookup' : 'mine';
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible' && Date.now() - lastLoad > 5 * 60 * 1000) {
+        lastLoad = Date.now();
+        refreshData();
+      }
+    });
 
     var today = kstToday();
     var first = pickDate(today);
