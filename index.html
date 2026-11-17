@@ -13,7 +13,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="stylesheet" href="app.css?v=36">
+<link rel="stylesheet" href="app.css?v=37">
 </head>
 <body>
 
@@ -68,10 +68,21 @@
   <p class="footnote" id="allFoot"></p>
 </main>
 
+<main id="viewMenu" class="view" hidden>
+  <div class="field">
+    <div class="label">주</div>
+    <div class="chips" id="weekChips"></div>
+  </div>
+  <div class="listhead" id="menuHead"></div>
+  <div id="menuDays"></div>
+  <p class="footnote" id="menuFoot"></p>
+</main>
+
 <nav class="tabbar">
   <button class="tab active" type="button" data-tab="mine"><span class="ti">🚌</span>내 배차</button>
   <button class="tab" type="button" data-tab="lookup"><span class="ti">🔎</span>조회</button>
   <button class="tab" type="button" data-tab="all"><span class="ti">📋</span>시간표</button>
+  <button class="tab" type="button" data-tab="menu"><span class="ti">🍚</span>식단표</button>
 </nav>
 
 <div class="sheetwrap" id="sheetWrap" hidden>
@@ -86,6 +97,6 @@
   </div>
 </div>
 
-<script src="app.js?v=36"></script>
+<script src="app.js?v=37"></script>
 </body>
 </html>

@@ -245,3 +245,15 @@ button{font-family:inherit;cursor:pointer}
 .cald.on{background:#1d4ed8;color:#fff;box-shadow:0 2px 8px rgba(29,78,216,.28)}
 .cald.on::after{display:none}
 .calfoot{margin-top:7px;color:#8791a3;font-size:11.5px;font-weight:700;text-align:center}
+
+/* ---------------- 식단표 ---------------- */
+#menuDays{display:flex;flex-direction:column;gap:10px}
+.mcard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:13px 14px}
+.mcard.today{border-color:#f0b429;background:#fffdf5}
+.mtop{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.mdate{font-size:16px;font-weight:800}
+.mline{display:flex;gap:9px;padding:4px 0;font-size:14.5px;line-height:1.45;border-top:1px dashed #eef1f6}
+.mline:first-of-type{border-top:0}
+.mline b{flex:0 0 34px;color:#1d4ed8;font-weight:800}
+.mline span{flex:1;color:#333c4d;word-break:keep-all}
+.mline .muted{color:#98a2b3;font-weight:700}

@@ -133,6 +133,62 @@ def trim_furlough(f, mode, me):
     return out
 
 
+
+# ---------------- 주간 식단표 ----------------
+MEAL_KEYS = {"아침": "breakfast", "점심": "lunch", "저녁": "dinner"}
+
+
+def find_menu_md(ws):
+    base = os.path.join(ws, "scheduled-actions")
+    if not os.path.isdir(base):
+        return None
+    for name in sorted(os.listdir(base)):
+        p = os.path.join(base, name, "menu.md")
+        if os.path.exists(p):
+            return p
+    return None
+
+
+def parse_menu_md(path):
+    """menu.md 를 읽어 주차별 날짜별 아침·점심·저녁으로 나눈다."""
+    weeks = []
+    week = None
+    day = None
+    meal = None
+    for line in open(path, encoding="utf-8").read().splitlines():
+        m = re.match(r"^##\s*(\d{4}-\d{2}-\d{2})\s*~\s*(\d{4}-\d{2}-\d{2})", line)
+        if m:
+            week = {"start": m.group(1), "end": m.group(2), "days": []}
+            weeks.append(week)
+            day = None
+            continue
+        if week is None:
+            continue
+        m = re.match(r"^-\s*(\d{4}-\d{2}-\d{2})\s*\(([^)]+)\)", line)
+        if m:
+            day = {"date": m.group(1), "dow": m.group(2), "breakfast": [], "lunch": [], "dinner": []}
+            week["days"].append(day)
+            continue
+        m = re.match(r"^\s+-\s*(아침|점심|저녁)\s*:\s*(.+?)\s*$", line)
+        if m and day is not None:
+            items = [x.strip() for x in m.group(2).split(",") if x.strip()]
+            day[MEAL_KEYS[m.group(1)]] = items
+    return [w for w in weeks if w["days"]]
+
+
+def build_menu(ws):
+    path = find_menu_md(ws)
+    if not path:
+        return 0
+    weeks = parse_menu_md(path)
+    if not weeks:
+        return 0
+    with open(os.path.join(OUT, "menu.json"), "w", encoding="utf-8") as f:
+        json.dump({"weeks": weeks, "source": "대진지부 주간식단표"}, f,
+                  ensure_ascii=False, separators=(",", ":"))
+    return len(weeks)
+
+
 def main():
     global NAME_FIXES
     NAME_FIXES = load_name_fixes()
@@ -203,7 +259,8 @@ def main():
                    "nameMode": mode,
                    "updated": kept[-1] if kept else None}, f, ensure_ascii=False)
 
-    print("nameMode=%s, dates=%d (%s ~ %s)" % (mode, len(kept), kept[0] if kept else "-", kept[-1] if kept else "-"))
+    nw = build_menu(WS)
+    print("nameMode=%s, dates=%d (%s ~ %s), menu weeks=%d" % (mode, len(kept), kept[0] if kept else "-", kept[-1] if kept else "-", nw))
 
 
 if __name__ == "__main__":

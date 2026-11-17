@@ -20,6 +20,7 @@
     config: null,
     lookup: { date: null, route: null, shift: 'am' },
     all: { date: null, route: 'all', find: '', cal: null },   // 전체시간표 화면
+    menu: { data: null, loading: false, week: 0 },            // 식단표 화면
     open: null,
     booted: false
   };
@@ -713,6 +714,61 @@
   }
 
   /* ---------------- 공통 그리기 ---------------- */
+  /* ---------------- 식단표 ---------------- */
+  function loadMenu(force) {
+    if (S.menu.loading) return Promise.resolve();
+    if (S.menu.data && !force) return Promise.resolve();
+    S.menu.loading = true;
+    return fetch('data/menu.json', { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('status ' + r.status); return r.json(); })
+      .then(function (j) { S.menu.data = (j && j.weeks) || []; })
+      .catch(function () { S.menu.data = S.menu.data || []; })
+      .then(function () { S.menu.loading = false; });
+  }
+
+  function weekLabel(w) {
+    var a = String(w.start).split('-').map(Number), b = String(w.end).split('-').map(Number);
+    return a[1] + '/' + a[2] + '~' + b[1] + '/' + b[2];
+  }
+
+  function mealRow(label, items) {
+    if (!items || !items.length) return '<div class="mline"><b>' + label + '</b><span class="muted">메뉴 없음</span></div>';
+    return '<div class="mline"><b>' + label + '</b><span>' + esc(items.join(', ')) + '</span></div>';
+  }
+
+  function renderMenu() {
+    var box = $('#weekChips');
+    var weeks = S.menu.data || [];
+    if (!weeks.length) {
+      $('#menuHead').innerHTML = '';
+      $('#menuDays').innerHTML = '<div class="emptybox">' + (S.menu.loading
+        ? '식단표를 불러오는 중…'
+        : '아직 식단표가 없습니다.<br>카페에 주간식단표가 올라오면 자동으로 채워집니다.') + '</div>';
+      $('#menuFoot').innerHTML = '';
+      box.innerHTML = '';
+      return;
+    }
+    if (!(S.menu.week >= 0 && S.menu.week < weeks.length)) S.menu.week = weeks.length - 1;
+
+    box.innerHTML = weeks.map(function (w, i) {
+      return '<button type="button" class="chip' + (i === S.menu.week ? ' on' : '') +
+        '" data-week="' + i + '">' + weekLabel(w) + '</button>';
+    }).join('');
+
+    var w = weeks[S.menu.week];
+    var today = kstToday();
+    $('#menuHead').innerHTML = '<span>' + esc(String(w.start)) + ' ~ ' + esc(String(w.end)) + ' 식단표</span><span class="cnt">' +
+      w.days.length + '일</span>';
+    $('#menuDays').innerHTML = w.days.map(function (d) {
+      return '<div class="mcard' + (d.date === today ? ' today' : '') + '">' +
+        '<div class="mtop"><b class="mdate">' + fullLabel(d.date) + '</b>' +
+        (d.date === today ? '<span class="pill pill-today">오늘</span>' : '') + '</div>' +
+        mealRow('아침', d.breakfast) + mealRow('점심', d.lunch) + mealRow('저녁', d.dinner) +
+        '</div>';
+    }).join('');
+    $('#menuFoot').innerHTML = '카페 대진지부 주간식단표 기준입니다. 식자재 수급에 따라 바뀔 수 있어요.';
+  }
+
   function renderChrome() {
     $('#personName').textContent = S.person || defaultPerson();
     var today = kstToday();
@@ -727,8 +783,10 @@
     $('#viewMine').hidden = tab !== 'mine';
     $('#viewLookup').hidden = tab !== 'lookup';
     $('#viewAll').hidden = tab !== 'all';
+    $('#viewMenu').hidden = tab !== 'menu';
     if (tab === 'mine') renderMine();
     else if (tab === 'lookup') renderLookup();
+    else if (tab === 'menu') { if (!S.menu.data) loadMenu().then(function () { if (S.tab === 'menu') renderMenu(); }); renderMenu(); }
     else renderAll();
     Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (b) {
       b.classList.toggle('active', b.getAttribute('data-tab') === S.tab);
@@ -736,7 +794,7 @@
   }
 
   function setTab(tab) {
-    if (tab !== 'mine' && tab !== 'lookup' && tab !== 'all') return;
+    if (tab !== 'mine' && tab !== 'lookup' && tab !== 'all' && tab !== 'menu') return;
     S.tab = tab;
     storeSet('dj_tab_v1', tab);
     render();
@@ -797,6 +855,13 @@
       S.lookup.shift = c.getAttribute('data-shift');
       S.open = null;
       renderLookup();
+    });
+
+    $('#weekChips').addEventListener('click', function (e) {
+      var c = e.target.closest ? e.target.closest('[data-week]') : null;
+      if (!c) return;
+      S.menu.week = parseInt(c.getAttribute('data-week'), 10) || 0;
+      renderMenu();
     });
 
     $('#allDateChips').addEventListener('click', function (e) {
@@ -874,7 +939,7 @@
     ensureStart();
     lastLoad = Date.now();
     var savedTab = storeGet('dj_tab_v1');
-    S.tab = (savedTab === 'lookup' || savedTab === 'all') ? savedTab : 'mine';
+    S.tab = (savedTab === 'lookup' || savedTab === 'all' || savedTab === 'menu') ? savedTab : 'mine';
     document.addEventListener('visibilitychange', function () {
       if (document.visibilityState === 'visible' && Date.now() - lastLoad > 5 * 60 * 1000) {
         lastLoad = Date.now();
@@ -885,7 +950,7 @@
     var today = kstToday();
     var first = pickDate(today);
 
-    Promise.all([loadConfig(), loadIndex()]).then(function () {
+    Promise.all([loadConfig(), loadIndex(), loadMenu()]).then(function () {
       S.person = storeGet(STORE_KEY) || defaultPerson();
       first = pickDate(today);
       if (S.index.length) {
