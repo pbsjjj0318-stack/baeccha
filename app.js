@@ -19,6 +19,7 @@
     loading: {},
     config: null,
     lookup: { date: null, route: null, shift: 'am' },
+    all: { date: null, route: 'all' },   // 전체시간표 화면
     open: null,
     booted: false
   };
@@ -453,6 +454,135 @@
     $('#lookupFoot').innerHTML = foot;
   }
 
+  /* ---------------- 그리기: 전체시간표 ---------------- */
+  function ensureAll() {
+    if (!S.index.length) return;
+    var dates = S.index.map(function (x) { return x.date; });
+    if (!S.all.date || dates.indexOf(S.all.date) < 0) {
+      var today = kstToday();
+      S.all.date = dates.indexOf(today) >= 0 ? today : dates[0];
+    }
+  }
+
+  function shiftOfTrip(t, route) {
+    var b = BOUNDARY[route];
+    if (!b) return null;
+    return t.no <= b ? 'am' : 'pm';
+  }
+
+  function allEntries(d, routeFilter) {
+    var out = [];
+    if (!d || !d.routes) return out;
+    d.routes.forEach(function (r) {
+      if (routeFilter && routeFilter !== 'all' && r.route !== routeFilter) return;
+      (r.vehicles || []).forEach(function (v) {
+        (v.trips || []).forEach(function (t) {
+          if (!t.depart) return;
+          var sh = shiftOfTrip(t, r.route);
+          var driver = sh === 'pm' ? (v.pm_driver || v.am_driver) : (sh === 'am' ? (v.am_driver || v.pm_driver)
+            : (v.am_driver || v.pm_driver));
+          out.push({
+            time: t.depart, route: r.route, vehicle: v.vehicle, company: v.company,
+            no: t.no, shift: sh, derived: !!t.derived, driver: driver || '',
+            vno: v.no
+          });
+        });
+      });
+    });
+    out.sort(function (a, b) {
+      if (a.time !== b.time) return a.time < b.time ? -1 : 1;
+      if (a.route !== b.route) return a.route < b.route ? -1 : 1;
+      return a.vno - b.vno;
+    });
+    return out;
+  }
+
+  function renderAll() {
+    ensureAll();
+    var ds = S.all.date;
+    var today = kstToday();
+
+    /* 날짜 칩 */
+    var dc = $('#allDateChips');
+    if (!S.index.length) {
+      dc.innerHTML = '<span class="hint">날짜를 불러오는 중…</span>';
+    } else {
+      dc.innerHTML = S.index.map(function (x) {
+        var on = x.date === ds;
+        return '<button type="button" class="chip' + (on ? ' on' : '') + '" data-date="' + x.date + '">' +
+          dLabel(x.date) + '<span class="w">' + wdOf(x.date) + '</span></button>';
+      }).join('');
+    }
+
+    var d = ds ? S.data[ds] : undefined;
+    var have = [];
+    if (d && d.routes) have = d.routes.map(function (r) { return r.route; });
+    if (!ds || (!have.length && !S.loading[ds])) S.all.route = 'all';
+
+    /* 노선 칩 */
+    $('#allRouteChips').innerHTML = ['all'].concat(ROUTES).map(function (r) {
+      var isAll = r === 'all';
+      var ok = isAll || have.indexOf(r) >= 0;
+      var on = S.all.route === r;
+      return '<button type="button" class="chip' + (on ? ' on' : '') + (ok ? '' : ' off') +
+        '" data-route="' + r + '"' + (ok ? '' : ' disabled aria-disabled="true"') + '>' +
+        (isAll ? '전체' : r) + (ok ? '' : '<span class="w">준비 중</span>') + '</button>';
+    }).join('');
+
+    var box = $('#allRows');
+    var head = $('#allHead');
+    if (!ds) { head.innerHTML = ''; box.innerHTML = '<div class="loading">불러오는 중…</div>'; $('#allFoot').innerHTML = ''; return; }
+    if (S.loading[ds] && !d) {
+      head.innerHTML = '<span>' + fullLabel(ds) + '</span>';
+      box.innerHTML = '<div class="loading">불러오는 중…</div>';
+      $('#allFoot').innerHTML = '';
+      return;
+    }
+    if (!d) {
+      head.innerHTML = '<span>' + fullLabel(ds) + '</span><span class="cnt">배차표 준비 중</span>';
+      box.innerHTML = '<div class="emptybox">이 날짜 배차표가 아직 없습니다.</div>';
+      $('#allFoot').innerHTML = '';
+      return;
+    }
+
+    var list = allEntries(d, S.all.route);
+    var p = norm(S.person);
+    head.innerHTML = '<span>' + fullLabel(ds) + ' 전체시간표</span><span class="cnt">' + list.length + '회</span>';
+
+    if (!list.length) {
+      box.innerHTML = '<div class="emptybox">' +
+        (S.all.route === 'all' ? '이 날짜 배차표에 옮겨 적은 회차가 없습니다.'
+          : esc(S.all.route) + '번은 이 날짜 표에 아직 없습니다.<br>지금은 115-1·189-1 두 노선부터 들어 있습니다.') +
+        '</div>';
+      $('#allFoot').innerHTML = '';
+      return;
+    }
+
+    var rows = [];
+    var lastHour = '';
+    list.forEach(function (e) {
+      var hour = e.time.slice(0, 2);
+      if (hour !== lastHour) {
+        rows.push('<div class="allhour">' + hour + '시</div>');
+        lastHour = hour;
+      }
+      var mine = !!e.driver && norm(e.driver) === p;
+      rows.push('<div class="arow' + (mine ? ' mine' : '') + '">' +
+        '<b class="atime">' + esc(e.time) + (e.derived ? '<span class="approx">≈</span>' : '') + '</b>' +
+        '<span class="aroute">' + esc(e.route) + '</span>' +
+        '<span class="aveh">' + esc(e.vehicle ? (e.vehicle + '번') : (e.company || '—')) + '</span>' +
+        '<span class="aname">' + (e.driver ? esc(e.driver) : '<span class="muted">이름 없음</span>') + '</span>' +
+        '<span class="ano">' + e.no + '회' +
+        (e.shift ? '<i>' + (e.shift === 'am' ? '오전' : '오후') + '</i>' : '') + '</span>' +
+        '</div>');
+    });
+    box.innerHTML = rows.join('');
+
+    $('#allFoot').innerHTML =
+      '≈ 표에 분(分)만 인쇄된 칸은 위 회차의 시(時)를 이어받아 복원한 시각입니다.<br>' +
+      '내 이름(' + esc(S.person) + ')이 있는 회차는 파랗게 표시합니다.';
+  }
+
   /* ---------------- 이름 시트 ---------------- */
   function allNames() {
     var set = {};
@@ -516,22 +646,20 @@
 
   function render() {
     renderChrome();
-    if (S.tab === 'mine') {
-      $('#viewMine').hidden = false;
-      $('#viewLookup').hidden = true;
-      renderMine();
-    } else {
-      $('#viewMine').hidden = true;
-      $('#viewLookup').hidden = false;
-      renderLookup();
-    }
+    var tab = S.tab;
+    $('#viewMine').hidden = tab !== 'mine';
+    $('#viewLookup').hidden = tab !== 'lookup';
+    $('#viewAll').hidden = tab !== 'all';
+    if (tab === 'mine') renderMine();
+    else if (tab === 'lookup') renderLookup();
+    else renderAll();
     Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (b) {
       b.classList.toggle('active', b.getAttribute('data-tab') === S.tab);
     });
   }
 
   function setTab(tab) {
-    if (tab !== 'mine' && tab !== 'lookup') return;
+    if (tab !== 'mine' && tab !== 'lookup' && tab !== 'all') return;
     S.tab = tab;
     storeSet('dj_tab_v1', tab);
     render();
@@ -577,6 +705,28 @@
       S.lookup.shift = c.getAttribute('data-shift');
       S.open = null;
       renderLookup();
+    });
+
+    $('#allDateChips').addEventListener('click', function (e) {
+      var c = e.target.closest ? e.target.closest('[data-date]') : null;
+      if (!c) return;
+      var ds = c.getAttribute('data-date');
+      S.all.date = ds;
+      S.all.route = 'all';
+      if (!Object.prototype.hasOwnProperty.call(S.data, ds) && !S.loading[ds]) {
+        S.loading[ds] = true;
+        renderAll();
+        loadDate(ds).then(function () { delete S.loading[ds]; renderAll(); });
+        return;
+      }
+      renderAll();
+    });
+
+    $('#allRouteChips').addEventListener('click', function (e) {
+      var c = e.target.closest ? e.target.closest('[data-route]') : null;
+      if (!c || c.disabled) return;
+      S.all.route = c.getAttribute('data-route');
+      renderAll();
     });
 
     $('#rows').addEventListener('click', function (e) {
@@ -626,7 +776,8 @@
     wire();
     ensureStart();
     lastLoad = Date.now();
-    S.tab = storeGet('dj_tab_v1') === 'lookup' ? 'lookup' : 'mine';
+    var savedTab = storeGet('dj_tab_v1');
+    S.tab = (savedTab === 'lookup' || savedTab === 'all') ? savedTab : 'mine';
     document.addEventListener('visibilitychange', function () {
       if (document.visibilityState === 'visible' && Date.now() - lastLoad > 5 * 60 * 1000) {
         lastLoad = Date.now();

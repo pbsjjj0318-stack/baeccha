@@ -151,6 +151,28 @@ button{font-family:inherit;cursor:pointer}
 .rowunsure{display:none;margin-top:9px;color:#b45309;font-size:13.5px;font-weight:700}
 .row.open .rowunsure{display:block}
 
+/* ===== 전체시간표 ===== */
+.allrows{display:flex;flex-direction:column}
+.allhour{
+  position:sticky;top:0;z-index:1;margin:14px 0 6px;padding:4px 2px 4px;
+  font-size:13px;font-weight:800;color:var(--muted);letter-spacing:.3px;
+}
+.allrows>.allhour:first-child{margin-top:2px}
+.arow{
+  display:grid;grid-template-columns:74px 58px 62px 1fr auto;align-items:baseline;gap:6px;
+  background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:9px 11px;margin:0 0 6px;font-variant-numeric:tabular-nums;
+}
+.arow .atime{font-size:20px;font-weight:800;letter-spacing:-.4px}
+.arow .aroute{font-size:13.5px;font-weight:800;color:#48536a;background:#eaeef5;border-radius:8px;padding:2px 6px;text-align:center}
+.arow .aveh{font-size:14px;font-weight:700;color:var(--muted)}
+.arow .aname{font-size:16.5px;font-weight:800;letter-spacing:-.2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.arow .aname .muted{color:#b6bfcd}
+.arow .ano{font-size:12.5px;font-weight:800;color:var(--muted);white-space:nowrap}
+.arow .ano i{font-style:normal;margin-left:4px;color:#98a2b3}
+.arow.mine{background:#f2f7ff;border-color:var(--blue-line);box-shadow:inset 4px 0 0 var(--blue);padding-left:7px}
+.arow.mine .atime,.arow.mine .aname{color:var(--blue)}
+
 /* ===== 탭바 ===== */
 .tabbar{
   position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;gap:6px;
