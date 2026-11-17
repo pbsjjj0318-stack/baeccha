@@ -261,10 +261,10 @@ button{font-family:inherit;cursor:pointer}
 .toprow{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .corp{font-size:14px;font-weight:800;color:#1d4ed8;white-space:nowrap;letter-spacing:-.3px}
 
-/* ===== 만든이 표시 (화면 하단 고정, 왼쪽) ===== */
+/* ===== 만든이 표시 (화면 하단 고정, 오른쪽) ===== */
 .credit{
   position:fixed;left:0;right:0;bottom:calc(98px + env(safe-area-inset-bottom));
-  z-index:29;text-align:left;padding-left:16px;font-size:12px;font-weight:800;letter-spacing:-.2px;
+  z-index:29;text-align:right;padding-right:16px;font-size:12px;font-weight:800;letter-spacing:-.2px;
   color:#5b6577;pointer-events:none;
 }
 .credit span{
