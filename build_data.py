@@ -81,6 +81,21 @@ def mask_name(name, me=None):
     return core + digits
 
 
+def full_vehicle(v):
+    """차량번호를 4자리로 통일한다 (표에는 64 처럼 뒤 두 자리만 인쇄되는 칸이 있다).
+    2자리 -> 18xx, 앞자리가 잘못 읽힌 3·4자리(278, 2770) -> 18 + 뒤 두 자리."""
+    s = str(v or "").strip()
+    if not s.isdigit():
+        return v
+    if len(s) == 2:
+        return "18" + s
+    if len(s) == 3:
+        return "18" + s[-2:]
+    if len(s) == 4 and not s.startswith("18"):
+        return "18" + s[-2:]
+    return s
+
+
 def trim_vehicle(v, mode, me):
     trips = []
     for t in v.get("trips", []):
@@ -90,7 +105,7 @@ def trim_vehicle(v, mode, me):
         trips.append(item)
     out = {
         "no": v.get("no"),
-        "vehicle": v.get("vehicle"),
+        "vehicle": full_vehicle(v.get("vehicle")),
         "trips": trips,
     }
     if v.get("company"):
