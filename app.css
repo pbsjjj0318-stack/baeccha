@@ -32,8 +32,8 @@ button{font-family:inherit;cursor:pointer}
   border-bottom:1px solid var(--line);
   backdrop-filter:saturate(180%) blur(8px);
 }
-.brand{margin:0;font-size:26px;font-weight:800;letter-spacing:-.6px;display:flex;align-items:center;gap:9px}
-.brand .bus{font-size:25px;line-height:1}
+.brand{margin:0;font-size:23px;font-weight:800;letter-spacing:-.8px;display:flex;align-items:center;gap:7px;white-space:nowrap}
+.brand .bus{font-size:21px;line-height:1}
 .sub{margin:5px 0 0;color:var(--muted);font-size:15px;font-weight:700}
 
 /* ===== 공통 ===== */
