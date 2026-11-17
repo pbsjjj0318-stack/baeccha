@@ -349,7 +349,11 @@
       }).join('');
       var onChip = dc.querySelector('.chip.on');
       if (onChip && dc.clientWidth) {
-        dc.scrollLeft = Math.max(0, onChip.offsetLeft - (dc.clientWidth - onChip.clientWidth) / 2);
+        var cr = dc.getBoundingClientRect();
+        var or = onChip.getBoundingClientRect();
+        if (or.left < cr.left || or.right > cr.right) {
+          dc.scrollLeft += (or.left - cr.left) - (cr.width - or.width) / 2;
+        }
       }
     }
 
