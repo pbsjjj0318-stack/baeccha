@@ -61,6 +61,12 @@ sh sync.sh /workspace
 | `sync.sh` | 데이터 갱신 + commit + push |
 | `tools/make_icons.py` | 아이콘 다시 만들기 |
 
+## 파일을 고칠 때
+
+GitHub Pages 가 파일을 약 10분간 캐시하므로, `index.html`·`app.css`·`app.js` 를 고치면
+`index.html` 의 `?v=` 번호를 하나 올리고 `sw.js` 의 `CACHE` 이름도 같이 올린다.
+(데이터 파일 `data/*.json` 은 매일 바뀌므로 그대로 둔다.)
+
 ## 배차표 읽기 규칙
 
 - 회차 칸은 시가 바뀔 때만 `시/분`, 같은 시가 이어지면 분만 적혀 있습니다.
