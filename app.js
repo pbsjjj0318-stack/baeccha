@@ -114,13 +114,15 @@
       .then(function (j) { S.data[ds] = j; return j; });
   }
 
-  function isUncertain(name, ds) {
-    if (!name) return false;
-    if (/[?？]/.test(name)) return true;
+  /* 표 판독이 불확실한 줄인지 (이름 대신 노선·연번·교대로 표시) */
+  function isUncertainRow(ds, route, no, shift) {
     var d = S.data[ds];
-    var list = (d && d.uncertain_names) || [];
-    var n = norm(name);
-    for (var i = 0; i < list.length; i++) if (norm(list[i]) === n) return true;
+    if (!d) return false;
+    var list = d.uncertain || [];
+    for (var i = 0; i < list.length; i++) {
+      var x = list[i];
+      if (x && x.route === route && x.no === no && (!x.shift || x.shift === shift)) return true;
+    }
     return false;
   }
 
@@ -174,13 +176,13 @@
       (r.vehicles || []).forEach(function (v) {
         if (v.am_driver && norm(v.am_driver) === p) {
           items.push({
-            route: r.route, vehicle: v.vehicle, company: v.company, shift: 'am',
+            route: r.route, vehicle: v.vehicle, company: v.company, shift: 'am', vno: v.no,
             driver: v.am_driver, trips: tripList(v, 'am', r.route), hasBoundary: hasB
           });
         }
         if (v.pm_driver && norm(v.pm_driver) === p) {
           items.push({
-            route: r.route, vehicle: v.vehicle, company: v.company, shift: 'pm',
+            route: r.route, vehicle: v.vehicle, company: v.company, shift: 'pm', vno: v.no,
             driver: v.pm_driver, trips: tripList(v, 'pm', r.route), hasBoundary: hasB
           });
         }
@@ -199,12 +201,6 @@
     if (dates.indexOf(today) >= 0) return today;
     for (var i = 0; i < dates.length; i++) if (dates[i] > today) return dates[i];
     return dates[dates.length - 1];
-  }
-
-  function notesFor(ds) {
-    var d = S.data[ds];
-    if (!d || !d.notes || !d.notes.length) return '';
-    return d.notes[0];
   }
 
   /* ---------------- 그리기: 내 배차 ---------------- */
@@ -265,8 +261,8 @@
       if (!it.hasBoundary) {
         extra = '<div class="cnote">이 노선은 표에 교대 구분선이 없어 전체 회차를 표시합니다.</div>';
       }
-      if (isUncertain(it.driver, ds)) {
-        extra += '<div class="cnote">이름 판독이 불확실합니다(다른 이름일 수 있음).</div>';
+      if (isUncertainRow(ds, it.route, it.vno, it.shift)) {
+        extra += '<div class="cnote">이 줄은 이름 판독이 불확실합니다(다른 이름일 수 있음).</div>';
       }
       return '<div class="citem"><div class="cmeta">' + esc(meta) + '</div>' +
         '<div class="ctrips">' + trips + '</div>' + extra + '</div>';
@@ -419,7 +415,7 @@
     var html = rows.map(function (v) {
       var driver = shift === 'am' ? v.am_driver : v.pm_driver;
       var mine = !!driver && norm(driver) === p;
-      var unc = driver ? isUncertain(driver, ds) : false;
+      var unc = isUncertainRow(ds, route, v.no, shift);
       var trips = tripList(v, shift, route);
       var key = ds + '|' + route + '|' + shift + '|' + v.no;
       var open = (S.open === key);
@@ -436,7 +432,7 @@
           esc(driver) + ' 님을 내 이름으로 저장</button>'
         : '';
       var unsure = unc
-        ? '<div class="rowunsure">이 이름은 표 판독이 불확실합니다(\'박진선\'일 수 있음).</div>'
+        ? '<div class="rowunsure">이 줄은 표 판독이 불확실합니다. 다른 이름일 수 있습니다.</div>'
         : '';
       return '<div class="row' + (mine ? ' mine' : '') + (open ? ' open' : '') + '" role="button" tabindex="0" data-key="' +
         esc(key) + '"><div class="rowline">' + nameHtml +
@@ -450,7 +446,6 @@
 
     var foot = '≈ 표에 분(分)만 인쇄된 칸은 위 회차의 시(時)를 이어받아 복원한 시각입니다.';
     if (!b) foot += '<br>이 노선은 표에 오전/오후 굵은 구분선이 없어 차량 전체 회차를 보여줍니다.';
-    if (S.data[ds] && (S.data[ds].notes || []).length) foot += '<br><b>메모</b> ' + esc(S.data[ds].notes[0]);
     $('#lookupFoot').innerHTML = foot;
   }
 

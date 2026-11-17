@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """app.js 를 가짜 DOM + 로컬 데이터로 실행해 화면 출력을 검사한다 (노드 없이 확인용)."""
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -90,6 +91,17 @@ def main():
     html = mine['html']
     print('--- 내 배차 화면 길이:', len(html))
 
+    src_dir = Path('/workspace/data/baeccha')
+    colleagues = set()
+    for f in sorted(src_dir.glob('2026-*.json')):
+        d = json.loads(f.read_text(encoding='utf-8'))
+        for r in d.get('routes', []):
+            for v in r.get('vehicles', []):
+                for k in ('am_driver', 'pm_driver'):
+                    if v.get(k):
+                        colleagues.add(v[k])
+    colleagues.discard('박병수')
+
     checks = [
         ('오늘 카드 11월 17일 (화)', '11월 17일 (화)' in html),
         ('오늘 1회 06:00', '06:00' in html),
@@ -100,7 +112,7 @@ def main():
         ('11/20 오후 20:12', '20:12' in html),
         ('11/24 휴무 + 근거', '휴무' in html and '189-1번 오후 휴무' in html),
         ('11/28 배차표 준비 중', '배차표 준비 중' in html),
-        ('동료 이름이 화면에 새지 않음', '강민구' not in html and '이정만' not in html),
+        ('동료 실명이 화면에 새지 않음', not any(n in html for n in colleagues)),
         ('본인 이름 그대로 (박병수)', '박병수' in html),
         ('≈ 표식', '≈' in html),
         ('내 배차 pill', 'pill-today' in html),
@@ -123,12 +135,12 @@ def main():
     head = node('#listHead')
     print('--- 조회 head:', (head or {}).get('html'))
     extra = [
-        ('조회: 동료 이름 가림 (김*태)', '김*태' in rh),
+        ('조회: 동료 이름 가림 (가운데 *)', re.search(r'[가-힣]\*[가-힣]', rh) is not None),
         ('조회: 본인 내 배차 표시', 'badge' in rh and '박병수' in rh),
         ('조회: 189-1 오전 1~3회', '오전 1~3회' in ((head or {}).get('html') or '')),
         ('조회: 14대', '14대' in ((head or {}).get('html') or '')),
         ('조회: 오전 행은 3회까지만 (21:54 없음)', '21:54' not in rh),
-        ('조회: 원본 실명 없음', '이정만' not in rh and '김온태' not in rh),
+        ('조회: 원본 실명 없음', not any(n in rh for n in colleagues)),
     ]
     for label, cond in extra:
         print(('OK   ' if cond else 'FAIL ') + label)
@@ -149,6 +161,19 @@ def main():
         ('115-1: 오후는 3회부터', '11:47' in h115),
     ]
     for label, cond in extra2:
+        print(('OK   ' if cond else 'FAIL ') + label)
+        ok = ok and cond
+
+    # 판독 불확실 표시 (11/20 189-1 오전 연번 11)
+    ctx.eval("window.__dj.lookup({date:'2026-11-20',route:'189-1',shift:'am'})")
+    for _ in range(50):
+        try:
+            if not ctx.execute_pending_job():
+                break
+        except Exception:
+            break
+    h20 = (node('#rows') or {}).get('html') or ''
+    for label, cond in [('11/20 판독 불확실 ? 표시', 'qmark' in h20)]:
         print(('OK   ' if cond else 'FAIL ') + label)
         ok = ok and cond
 

@@ -20,9 +20,16 @@ WS = sys.argv[1] if len(sys.argv) > 1 else "/workspace"
 SRC = os.path.join(WS, "data", "baeccha")
 OUT = os.path.join(HERE, "data")
 
-# 판독이 불확실한 이름 (그 날짜에서만 표시)
-UNCERTAIN = {
-    "박진신": ["2026-11-20", "2026-11-21", "2026-11-22"],
+# 판독이 불확실한 줄 (이름 대신 표의 위치로 표시한다 — 공개 저장소에 이름을 남기지 않기 위해)
+# (노선, 연번, 교대)
+UNCERTAIN_ROWS = {
+    "2026-11-20": [("189-1", 11, "am")],
+    "2026-11-21": [("189-1", 8, "am")],
+    "2026-11-22": [("189-1", 3, "am")],
+    "2026-11-23": [("189-1", 14, "pm")],
+    "2026-11-24": [("189-1", 11, "pm")],
+    "2026-11-25": [("189-1", 8, "pm")],
+    "2026-11-26": [("189-1", 5, "pm")],
 }
 
 
@@ -140,14 +147,10 @@ def main():
         fur = trim_furlough(d.get("furlough"), mode, me)
         if fur:
             out["furlough"] = fur
-        if d.get("notes"):
-            out["notes"] = d["notes"]
-        unc = []
-        for name, dates in UNCERTAIN.items():
-            if date in dates:
-                unc.append(mask_name(name, me) if mode == "mask" else name)
-        if unc and mode != "self":
-            out["uncertain_names"] = unc
+        unc = [{"route": r_, "no": n_, "shift": s_}
+               for (r_, n_, s_) in UNCERTAIN_ROWS.get(date, [])]
+        if unc:
+            out["uncertain"] = unc
         with open(os.path.join(OUT, date + ".json"), "w", encoding="utf-8") as f:
             json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
         kept.append(date)
