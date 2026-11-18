@@ -263,7 +263,7 @@
 
     var pills = info.items.map(function (it) {
       return (it.vno ? '<span class="pill pill-seq">순번 ' + it.vno + '</span>' : '') +
-        '<span class="pill pill-shift">' + (it.shift === 'am' ? '오전' : '오후') + '</span>';
+        '<span class="pill pill-shift ' + (it.shift === 'am' ? 'pill-am' : 'pill-pm') + '">' + (it.shift === 'am' ? '오전' : '오후') + '</span>';
     }).join('');
     var body = info.items.map(function (it) {
       var meta = it.route + '번 · ' + (it.vno ? ('순번 ' + it.vno + ' · ') : '') + (it.vehicle ? ('차량 ' + it.vehicle + '번') : (it.company || '차량 정보 없음'));

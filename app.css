@@ -99,7 +99,10 @@ button{font-family:inherit;cursor:pointer}
 .approx{color:#9aa6b8;font-size:.78em;margin-left:2px;font-weight:700}
 
 .pill{display:inline-block;border-radius:999px;padding:3px 11px;font-size:13px;font-weight:800;background:#eaeef5;color:#5b6577;white-space:nowrap}
-.card.today .pill-shift{background:var(--blue);color:#fff}
+.pill-am{background:#dbeafe;color:#1d4ed8}
+.pill-pm{background:#ffedd5;color:#c2410c}
+.card.today .pill-am{background:#1d4ed8;color:#fff}
+.card.today .pill-pm{background:#ea580c;color:#fff}
 .pill-off{background:#fee2e2;color:#dc2626}
 
 /* ===== 조회 ===== */
