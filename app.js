@@ -766,15 +766,23 @@
   function startVoice() {
     var btn = $('#nameMic');
     if (!SR) {
-      setHint('이 브라우저에서는 음성 찾기가 안 돼요. 키보드 마이크를 써 주세요.');
+      setHint('이 브라우저에서는 음성 찾기가 안 돼요. 크롬에서 열어 보시거나 키보드 마이크를 써 주세요.');
       return;
     }
     if (voice) { try { voice.stop(); } catch (e) {} return; }
+    /* 키보드가 올라와 있으면 내리고 나서 마이크를 켠다 (소리 잡기 방해 방지) */
+    try { var ae = document.activeElement; if (ae && ae.blur) ae.blur(); } catch (e) {}
+    setHint('마이크를 켜는 중…');
+    setTimeout(function () { launchVoice(btn); }, 350);
+  }
+
+  function launchVoice(btn) {
+    var got = false, stopTimer = null;
     try {
       voice = new SR();
     } catch (e) {
       voice = null;
-      setHint('음성 찾기를 시작하지 못했어요.');
+      setHint('음성 찾기를 시작하지 못했어요. 다시 눌러 주세요.');
       return;
     }
     voice.lang = 'ko-KR';
@@ -783,10 +791,17 @@
     voice.onstart = function () {
       btn.classList.add('on');
       setHint('듣고 있어요. 이름을 말해 주세요.');
+      /* 12초 동안 아무 말도 안 들리면 스스로 끝낸다 */
+      clearTimeout(stopTimer);
+      stopTimer = setTimeout(function () {
+        if (voice && !got) { try { voice.stop(); } catch (e) {} }
+      }, 12000);
     };
     voice.onresult = function (e) {
       var res = e.results && e.results[0];
       if (!res) return;
+      got = true;
+      clearTimeout(stopTimer);
       var picked = false;
       for (var i = 0; i < res.length && !picked; i++) picked = voicePick(res[i].transcript);
       if (!picked) {
@@ -797,20 +812,33 @@
       }
     };
     voice.onerror = function (e) {
-      var code = e && e.error;
+      var code = (e && e.error) || '';
+      got = true;
+      clearTimeout(stopTimer);
       if (code === 'not-allowed' || code === 'service-not-allowed') {
         setHint('마이크 사용을 허용해 주셔야 음성 찾기가 됩니다.');
       } else if (code === 'no-speech') {
-        setHint('못 들었어요. 다시 한 번 말해 주세요.');
-      } else if (code !== 'aborted') {
-        setHint('음성 찾기가 잘 안 됐어요. 다시 시도해 주세요.');
+        setHint('못 들었어요. 마이크를 다시 눌러 주세요.');
+      } else if (code === 'network') {
+        setHint('음성 인식 서버에 연결하지 못했어요. 인터넷을 확인하고 다시 눌러 주세요.');
+      } else if (code === 'audio-capture') {
+        setHint('마이크를 찾지 못했어요. 다른 앱이 쓰고 있는지 확인해 주세요.');
+      } else if (code === 'aborted') {
+        /* 사용자가 직접 끊은 경우 — 안내 없음 */
+      } else {
+        setHint('음성 찾기가 잘 안 됐어요(' + code + '). 다시 눌러 주세요.');
       }
     };
     voice.onend = function () {
+      clearTimeout(stopTimer);
       btn.classList.remove('on');
       voice = null;
+      if (!got) setHint('못 들었어요. 마이크를 다시 눌러 주세요.');
     };
-    try { voice.start(); } catch (e) { voice = null; btn.classList.remove('on'); }
+    try { voice.start(); } catch (e) {
+      voice = null; btn.classList.remove('on');
+      setHint('음성 찾기를 시작하지 못했어요. 다시 눌러 주세요.');
+    }
   }
 
   /* ---------------- 공통 그리기 ---------------- */
