@@ -762,13 +762,13 @@
     $('#menuHead').innerHTML = '<span>' + esc(String(w.start)) + ' ~ ' + esc(String(w.end)) + ' 식단표</span><span class="cnt">' +
       w.days.length + '일</span>';
     $('#menuDays').innerHTML = w.days.map(function (d) {
-      return '<div class="mcard' + (d.date === today ? ' today' : '') + '">' +
+      return '<div class="mcard tap' + (d.date === today ? ' today' : '') + '" role="button" tabindex="0">' +
         '<div class="mtop"><b class="mdate">' + fullLabel(d.date) + '</b>' +
         (d.date === today ? '<span class="pill pill-today">오늘</span>' : '') + '</div>' +
         mealRow('아침', d.breakfast) + mealRow('점심', d.lunch) + mealRow('저녁', d.dinner) +
         '</div>';
     }).join('');
-    $('#menuFoot').innerHTML = '카페 대진지부 주간식단표 기준입니다. 식자재 수급에 따라 바뀔 수 있어요.';
+    $('#menuFoot').innerHTML = '날짜 카드를 누르면 글씨가 크게 보입니다. 카페 대진지부 주간식단표 기준이고, 식자재 수급에 따라 바뀔 수 있어요.';
   }
 
   function renderChrome() {
@@ -857,6 +857,20 @@
       S.lookup.shift = c.getAttribute('data-shift');
       S.open = null;
       renderLookup();
+    });
+
+    $('#menuDays').addEventListener('click', function (e) {
+      var it = e.target.closest ? e.target.closest('.mcard.tap') : null;
+      if (!it) return;
+      it.classList.toggle('open');
+    });
+
+    $('#menuDays').addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      var it = e.target.closest ? e.target.closest('.mcard.tap') : null;
+      if (!it || e.target !== it) return;
+      e.preventDefault();
+      it.classList.toggle('open');
     });
 
     $('#weekChips').addEventListener('click', function (e) {

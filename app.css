@@ -249,6 +249,9 @@ button{font-family:inherit;cursor:pointer}
 #menuDays{display:flex;flex-direction:column;gap:10px}
 .mcard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:13px 14px}
 .mcard.today{border-color:#f0b429;background:#fffdf5}
+.mcard.tap{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.mcard.open{border-color:#c2d3f8;background:#f7faff}
+.mcard.today.open{background:#fff8e8}
 .mtop{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .mdate{font-size:16px;font-weight:800}
 .mline{display:flex;gap:9px;padding:4px 0;font-size:14.5px;line-height:1.45;border-top:1px dashed #eef1f6}
@@ -256,6 +259,9 @@ button{font-family:inherit;cursor:pointer}
 .mline b{flex:0 0 34px;color:#1d4ed8;font-weight:800}
 .mline span{flex:1;color:#333c4d;word-break:keep-all}
 .mline .muted{color:#98a2b3;font-weight:700}
+.mcard.open .mdate{font-size:19px}
+.mcard.open .mline{font-size:19px;line-height:1.55;padding:7px 0}
+.mcard.open .mline b{flex-basis:42px;font-size:16px}
 
 /* 전체 시간표로 가는 링크 버튼 */
 .linkbtn{display:block;width:100%;margin:16px 0 4px;padding:13px 14px;border:1px solid var(--line);background:#fff;border-radius:14px;font:inherit;font-size:15px;font-weight:800;color:#1d4ed8}
