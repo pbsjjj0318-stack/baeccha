@@ -75,6 +75,8 @@ button{font-family:inherit;cursor:pointer}
 .card.today .pill-today{font-size:13.5px;padding:4px 12px;box-shadow:0 1px 4px rgba(29,78,216,.35)}
 .pill-seq{background:#e8eefb;color:#1d4ed8;border:1px solid #cfdcf5}
 .card.empty{background:#f7f9fc;border-style:dashed;box-shadow:none}
+.card.offcard{background:#fff5f5;border:1.5px solid #fecaca;border-left:5px solid #dc2626}
+.card.offcard .cnote{color:#991b1b;font-weight:700}
 .ctop{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .cspacer{flex:1 1 auto}
 .cdate{font-size:19px;font-weight:800;letter-spacing:-.3px}
@@ -103,7 +105,7 @@ button{font-family:inherit;cursor:pointer}
 .pill-pm{background:#ffedd5;color:#c2410c}
 .card.today .pill-am{background:#1d4ed8;color:#fff}
 .card.today .pill-pm{background:#ea580c;color:#fff}
-.pill-off{background:#fee2e2;color:#dc2626}
+.pill-off{background:#dc2626;color:#fff;font-size:14.5px;padding:4px 13px;font-weight:900;box-shadow:0 2px 6px rgba(220,38,38,.28);letter-spacing:.3px}
 
 /* ===== 조회 ===== */
 .field{margin:0 0 15px}

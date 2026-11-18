@@ -247,7 +247,7 @@
     if (info.kind === 'off') {
       var h = info.hits[0];
       var sh = h.shift === 'am' ? '오전 ' : (h.shift === 'pm' ? '오후 ' : '');
-      return '<div class="' + cls + ' empty"><div class="ctop">' + dateBit +
+      return '<div class="' + cls + ' empty offcard"><div class="ctop">' + dateBit +
         '<span class="pill pill-off">휴무</span></div>' +
         '<div class="cnote">' + esc(h.route) + '번 ' + sh + '휴무 · 이 날은 배차가 없습니다.</div></div>';
     }
@@ -257,7 +257,7 @@
         '<div class="cnote">예비 명단에 있습니다. 배차는 당일 정해질 수 있습니다.</div></div>';
     }
     if (info.kind === 'none') {
-      return '<div class="' + cls + ' empty"><div class="ctop">' + dateBit +
+      return '<div class="' + cls + ' empty offcard"><div class="ctop">' + dateBit +
         '<span class="pill pill-off">휴무</span></div>' +
         '<div class="cnote">이 날은 배차가 없습니다.</div></div>';
     }
