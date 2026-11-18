@@ -703,6 +703,7 @@
   function openSheet() {
     $('#sheetWrap').hidden = false;
     $('#nameSearch').value = '';
+    setHint('');
     renderNameList('');
     setTimeout(function () { try { $('#nameSearch').focus(); } catch (e) {} }, 60);
   }
@@ -726,6 +727,90 @@
       storeSet(ME_KEY, me);
     }
     return me;
+  }
+
+  /* ---------------- 이름 음성 찾기 ---------------- */
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var voice = null;
+
+  function setHint(txt) {
+    var el = $('#nameHint');
+    if (!el) return;
+    el.textContent = txt || '';
+    el.hidden = !txt;
+  }
+
+  /* 들린 말에서 이름을 골라 준다. 딱 하나로 정해지면 바로 그 이름으로 바꾼다. */
+  function voicePick(text) {
+    var q = norm(text);
+    if (!q) return false;
+    var names = allNames();
+    var hit = names.filter(function (n) { return norm(n) === q; });
+    if (!hit.length) {
+      hit = names.filter(function (n) {
+        var a = norm(n);
+        return a.indexOf(q) >= 0 || q.indexOf(a) >= 0;
+      });
+    }
+    $('#nameSearch').value = text;
+    renderNameList(text);
+    if (hit.length === 1) {
+      setHint('');
+      setPerson(hit[0]);
+      return true;
+    }
+    setHint(hit.length ? hit.length + '명 찾았어요. 하나를 눌러 주세요.' : '그런 이름이 없어요. 다시 말해 주세요.');
+    return false;
+  }
+
+  function startVoice() {
+    var btn = $('#nameMic');
+    if (!SR) {
+      setHint('이 브라우저에서는 음성 찾기가 안 돼요. 키보드 마이크를 써 주세요.');
+      return;
+    }
+    if (voice) { try { voice.stop(); } catch (e) {} return; }
+    try {
+      voice = new SR();
+    } catch (e) {
+      voice = null;
+      setHint('음성 찾기를 시작하지 못했어요.');
+      return;
+    }
+    voice.lang = 'ko-KR';
+    voice.interimResults = false;
+    voice.maxAlternatives = 3;
+    voice.onstart = function () {
+      btn.classList.add('on');
+      setHint('듣고 있어요. 이름을 말해 주세요.');
+    };
+    voice.onresult = function (e) {
+      var res = e.results && e.results[0];
+      if (!res) return;
+      var picked = false;
+      for (var i = 0; i < res.length && !picked; i++) picked = voicePick(res[i].transcript);
+      if (!picked) {
+        /* 후보를 다 합쳐서 한 번 더 ("박 병수"처럼 띄어 들린 경우) */
+        var all = '';
+        for (var j = 0; j < res.length; j++) all += res[j].transcript;
+        voicePick(all);
+      }
+    };
+    voice.onerror = function (e) {
+      var code = e && e.error;
+      if (code === 'not-allowed' || code === 'service-not-allowed') {
+        setHint('마이크 사용을 허용해 주셔야 음성 찾기가 됩니다.');
+      } else if (code === 'no-speech') {
+        setHint('못 들었어요. 다시 한 번 말해 주세요.');
+      } else if (code !== 'aborted') {
+        setHint('음성 찾기가 잘 안 됐어요. 다시 시도해 주세요.');
+      }
+    };
+    voice.onend = function () {
+      btn.classList.remove('on');
+      voice = null;
+    };
+    try { voice.start(); } catch (e) { voice = null; btn.classList.remove('on'); }
   }
 
   /* ---------------- 공통 그리기 ---------------- */
@@ -826,6 +911,8 @@
       if (btn) setPerson(btn.getAttribute('data-name'));
     });
     $('#nameSearch').addEventListener('input', function (e) { renderNameList(e.target.value); });
+    var mic = $('#nameMic');
+    if (mic) mic.addEventListener('click', startVoice);
 
     Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (b) {
       b.addEventListener('click', function () { setTab(b.getAttribute('data-tab')); });
