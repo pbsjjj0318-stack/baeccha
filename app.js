@@ -270,6 +270,9 @@
       var trips = it.trips.length
         ? it.trips.map(function (t) { return tripHtml(t, false); }).join('')
         : '<span class="hint">이 교대 회차 없음</span>';
+      var bigTrips = it.trips.length
+        ? '<div class="cbig">' + it.trips.map(function (t) { return tripHtml(t, true); }).join('') + '</div>'
+        : '';
       var extra = '';
       if (!it.hasBoundary) {
         extra = '<div class="cnote">이 노선은 표에 교대 구분선이 없어 전체 회차를 표시합니다.</div>';
@@ -277,8 +280,10 @@
       if (isUncertainRow(ds, it.route, it.vno, it.shift)) {
         extra += '<div class="cnote">이 줄은 이름 판독이 불확실합니다(다른 이름일 수 있음).</div>';
       }
-      return '<div class="citem"><div class="cmeta">' + esc(meta) + '</div>' +
-        '<div class="ctrips">' + trips + '</div>' + extra + '</div>';
+      return '<div class="citem' + (it.trips.length ? ' tap' : '') + '"' +
+        (it.trips.length ? ' role="button" tabindex="0"' : '') +
+        '><div class="cmeta">' + esc(meta) + '</div>' +
+        '<div class="ctrips">' + trips + '</div>' + bigTrips + extra + '</div>';
     }).join('');
 
     return '<div class="' + cls + '"><div class="ctop">' + dateBit +
@@ -316,7 +321,8 @@
 
     var first = S.index.length ? S.index[0].date : '';
     var last = S.index.length ? S.index[S.index.length - 1].date : '';
-    var foot = '≈ 표에 분(分)만 인쇄된 칸은 위 회차의 시(時)를 이어받아 복원한 시각입니다.';
+    var foot = '카드를 누르면 회차 시간이 크게 보입니다. 다시 누르면 원래대로 돌아갑니다.' +
+      '<br>≈ 표에 분(分)만 인쇄된 칸은 위 회차의 시(時)를 이어받아 복원한 시각입니다.';
     if (first && last) foot += '<br><b>배차 데이터</b> ' + dLabel(first) + '~' + dLabel(last) +
       ' (' + S.index.length + '일치) · 휴무는 그 날 배차표의 휴무 명단을 근거로 표시합니다.';
     $('#mineFoot').innerHTML = foot;
@@ -885,6 +891,20 @@
       if (!c || c.disabled) return;
       S.all.route = c.getAttribute('data-route');
       renderAll();
+    });
+
+    $('#mine').addEventListener('click', function (e) {
+      var it = e.target.closest ? e.target.closest('.citem.tap') : null;
+      if (!it) return;
+      it.classList.toggle('open');
+    });
+
+    $('#mine').addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      var it = e.target.closest ? e.target.closest('.citem.tap') : null;
+      if (!it || e.target !== it) return;
+      e.preventDefault();
+      it.classList.toggle('open');
     });
 
     $('#rows').addEventListener('click', function (e) {

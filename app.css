@@ -87,6 +87,10 @@ button{font-family:inherit;cursor:pointer}
 .card.today .ctrips .tr{flex:0 0 auto}
 .card.today .ctrips .tr b{background:#1d4ed8;color:#fff;border-color:#1d4ed8;font-weight:900}
 .citem+.citem{margin-top:12px;padding-top:12px;border-top:1px dashed #d8e2f5}
+.citem.tap{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.cbig{display:none;margin-top:9px;grid-template-columns:1fr 1fr;gap:8px}
+.citem.open .ctrips{display:none}
+.citem.open .cbig{display:grid}
 .tr b{font-weight:900;color:#1d4ed8;background:#dfe8fd;border:1px solid #c2d3f8;border-radius:7px;padding:1px 4px;font-size:.56em;margin-right:4px;letter-spacing:-.2px;white-space:nowrap}
 .ctrips::-webkit-scrollbar{display:none}
 .ctrips .tr{flex:0 0 auto}
