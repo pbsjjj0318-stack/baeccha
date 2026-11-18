@@ -307,7 +307,7 @@
     html += cardHtml(todayDate, { todayDate: todayDate });
 
     var mon = mondayOf(today);
-    var w1 = weekDays(mon).filter(function (d) { return d >= today; });
+    var w1 = weekDays(mon).filter(function (d) { return d > today; });
     var w2 = weekDays(addDays(mon, 7));
     if (w1.length) {
       html += '<h2 class="grouphead"><span>이번 주 내 배차</span><span class="grange">' +
