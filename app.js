@@ -8,7 +8,8 @@
   /* 표의 굵은 세로선 = 교대 경계. 값은 '오전 마지막 회차' 번호 */
   var BOUNDARY = { '189-1': 3, '115-1': 2, '129-1': 2, '189': 3, '187': 3 };
   var WD = ['일', '월', '화', '수', '목', '금', '토'];
-  var STORE_KEY = 'dj_person_v1';
+  var STORE_KEY = 'dj_person_v1';   // 마지막으로 고른 이름 (앱을 끄면 사라짐)
+  var ME_KEY = 'dj_me_v1';          // 이 기기 사용자 본인 이름 (앱을 열 때 기준)
   var FALLBACK_PERSON = '박병수';
 
   var S = {
@@ -709,10 +710,22 @@
 
   function setPerson(name) {
     if (!name) return;
+    /* 이름 시트에서 다른 사람을 골라 봐도 '내 이름'은 바뀌지 않는다.
+       앱을 다시 열면 항상 이 기기의 본인 이름으로 돌아온다. */
     S.person = name;
-    storeSet(STORE_KEY, name);
     closeSheet();
     render();
+  }
+
+  /* 이 기기 사용자의 본인 이름. 한 번 정해지면 기기에 저장해 두고
+     앱을 열 때마다 이 값을 기준으로 삼는다. */
+  function myName() {
+    var me = storeGet(ME_KEY);
+    if (!me) {
+      me = defaultPerson();
+      storeSet(ME_KEY, me);
+    }
+    return me;
   }
 
   /* ---------------- 공통 그리기 ---------------- */
@@ -979,7 +992,7 @@
     var first = pickDate(today);
 
     Promise.all([loadConfig(), loadIndex(), loadMenu()]).then(function () {
-      S.person = storeGet(STORE_KEY) || defaultPerson();
+      S.person = myName();
       first = pickDate(today);
       if (S.index.length) {
         S.index.forEach(function (x) { if (!Object.prototype.hasOwnProperty.call(S.data, x.date)) S.loading[x.date] = true; });
@@ -1006,8 +1019,7 @@
   }
 
   function ensureStart() {
-    /* localStorage 에 저장된 이름이 비어 있으면 기본값 */
-    S.person = storeGet(STORE_KEY) || FALLBACK_PERSON;
+    S.person = storeGet(ME_KEY) || FALLBACK_PERSON;
     renderChrome();
   }
 
