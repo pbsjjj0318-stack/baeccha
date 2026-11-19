@@ -131,24 +131,24 @@ button{font-family:inherit;cursor:pointer}
 .listhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:4px 2px 9px;font-size:16px;font-weight:800}
 .listhead .cnt{color:var(--muted);font-size:13.5px;font-weight:700;white-space:nowrap}
 
-.rows{display:flex;flex-direction:column;gap:10px}
+.rows{display:flex;flex-direction:column;gap:8px}
 .row{
-  background:var(--card);border:1px solid #dbe2ee;border-radius:16px;
-  padding:14px 16px;width:100%;text-align:left;outline:none;
-  box-shadow:0 2px 6px rgba(16,24,40,.08);
+  background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:12px 14px;width:100%;text-align:left;outline:none;
+  box-shadow:0 1px 2px rgba(16,24,40,.04);
 }
 .row:focus-visible{box-shadow:0 0 0 3px rgba(29,78,216,.25)}
-.row.mine{background:#eef4ff;border-color:var(--blue-line);border-left:6px solid var(--blue);padding-left:12px;box-shadow:0 2px 8px rgba(29,78,216,.16)}
+.row.mine{background:#f2f7ff;border-color:var(--blue-line);border-left:5px solid var(--blue);padding-left:10px}
 .rowline{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
-.rowname{font-size:23px;font-weight:900;letter-spacing:-.5px}
-.rowname.muted{color:#98a2b3;font-size:18px;font-weight:700}
-.rowveh{color:#5b6577;font-size:14.5px;font-weight:800}
+.rowname{font-size:20px;font-weight:800;letter-spacing:-.3px}
+.rowname.muted{color:#98a2b3;font-size:17px;font-weight:700}
+.rowveh{color:var(--muted);font-size:14px;font-weight:700}
 .rowveh.warn{color:#b45309}
 .badge{background:var(--blue);color:#fff;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:800}
 .qmark{color:#c2410c;font-weight:900}
 .rtrips{
-  margin-top:9px;display:flex;flex-wrap:wrap;gap:5px 14px;
-  font-size:22px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.3px;
+  margin-top:7px;display:flex;flex-wrap:wrap;gap:4px 13px;
+  font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.2px;
 }
 .rbig{display:none;margin-top:11px;grid-template-columns:1fr 1fr;gap:8px}
 .row.open .rtrips{display:none}
