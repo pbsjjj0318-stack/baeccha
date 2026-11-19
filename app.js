@@ -1175,8 +1175,9 @@
     wire();
     ensureStart();
     lastLoad = Date.now();
-    var savedTab = storeGet('dj_tab_v1');
-    S.tab = (savedTab === 'lookup' || savedTab === 'all' || savedTab === 'menu') ? savedTab : 'mine';
+    /* 앱을 새로 열면 늘 '내 배차'부터 보여 준다 (지난 탭을 기억해 두지 않는다) */
+    S.tab = 'mine';
+    try { storeSet('dj_tab_v1', 'mine'); } catch (e) {}
     document.addEventListener('visibilitychange', function () {
       if (document.visibilityState === 'visible' && Date.now() - lastLoad > 5 * 60 * 1000) {
         lastLoad = Date.now();
