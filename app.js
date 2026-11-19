@@ -313,22 +313,23 @@
       '</span><span class="grange">' + esc(S.person) + ' 님</span></h2>';
     html += cardHtml(todayDate, { todayDate: todayDate });
 
+    /* 이번 달을 넘어가는 날짜는 보여 주지 않는다 */
+    var ym = today.slice(0, 7);
+    function inMonth(d) { return d.slice(0, 7) === ym; }
+
     var mon = mondayOf(today);
-    var w1 = weekDays(mon).filter(function (d) { return d > today; });
-    var w2 = weekDays(addDays(mon, 7));
-    if (w1.length) {
-      html += '<h2 class="grouphead"><span>이번 주 내 배차</span><span class="grange">' +
-        dLabel(w1[0]) + '~' + dLabel(w1[w1.length - 1]) + '</span></h2>';
-      html += w1.map(function (d) { return cardHtml(d, { todayDate: null }); }).join('');
-    }
-    html += '<h2 class="grouphead"><span>다음 주 내 배차</span><span class="grange">' +
-      dLabel(w2[0]) + '~' + dLabel(w2[6]) + '</span></h2>';
-    html += w2.map(function (d) { return cardHtml(d, { todayDate: null }); }).join('');
-    /* 3주차(다음다음 주)까지 보여 준다 */
-    var w3 = weekDays(addDays(mon, 14));
-    html += '<h2 class="grouphead"><span>그다음 주 내 배차</span><span class="grange">' +
-      dLabel(w3[0]) + '~' + dLabel(w3[6]) + '</span></h2>';
-    html += w3.map(function (d) { return cardHtml(d, { todayDate: null }); }).join('');
+    var groups = [
+      { title: '이번 주 내 배차', days: weekDays(mon).filter(function (d) { return d > today; }) },
+      { title: '다음 주 내 배차', days: weekDays(addDays(mon, 7)) },
+      { title: '그다음 주 내 배차', days: weekDays(addDays(mon, 14)) }
+    ];
+    groups.forEach(function (g) {
+      var days = g.days.filter(inMonth);
+      if (!days.length) return;
+      html += '<h2 class="grouphead"><span>' + g.title + '</span><span class="grange">' +
+        dLabel(days[0]) + '~' + dLabel(days[days.length - 1]) + '</span></h2>';
+      html += days.map(function (d) { return cardHtml(d, { todayDate: null }); }).join('');
+    });
     wrap.innerHTML = html;
 
     var first = S.index.length ? S.index[0].date : '';
