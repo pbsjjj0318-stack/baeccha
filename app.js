@@ -759,7 +759,7 @@
       n.hidden = !S.setupMe;
       n.textContent = '이 기기에서 내 배차를 볼 이름을 골라 주세요.';
     }
-    if (b) b.textContent = S.setupMe ? '그만두기' : '내 이름 바꾸기';
+    if (b) b.textContent = S.setupMe ? '그만두기' : '내 이름 저장하기';
   }
 
   function setPerson(name) {
@@ -845,7 +845,7 @@
     renderNameList(text);
     if (hit.length === 1) {
       setHint('');
-      /* '내 이름 바꾸기' 중에 마이크로 찾은 경우에도 키보드로 골랐을 때처럼
+      /* '내 이름 저장하기' 중에 마이크로 찾은 경우에도 키보드로 골랐을 때처럼
          이 기기의 본인 이름으로 저장한다. */
       if (S.setupMe) setMyName(hit[0]); else setPerson(hit[0]);
       return true;
