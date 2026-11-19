@@ -1134,7 +1134,13 @@
       if (!Object.prototype.hasOwnProperty.call(S.data, ds) && !S.loading[ds]) {
         S.loading[ds] = true;
         renderAll();
-        loadDate(ds).then(function () { delete S.loading[ds]; renderAll(); });
+        loadDate(ds).then(function () {
+          delete S.loading[ds];
+          /* 자료를 받은 뒤에 이름에 맞는 노선을 다시 맞춘다 */
+          var spB = personSpot(ds, S.person);
+          if (spB) S.all.route = spB.route;
+          renderAll();
+        });
         return;
       }
       renderAll();
