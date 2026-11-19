@@ -209,6 +209,24 @@
     return { kind: 'none' };
   }
 
+  /* 이름 하나로 날짜·노선·교대를 함께 찾는다 (이름만 따로 놀지 않게) */
+  function personSpot(ds, name) {
+    var p = norm(name);
+    if (!p || !ds) return null;
+    var d = S.data[ds];
+    if (!d || !d.routes) return null;
+    for (var i = 0; i < d.routes.length; i++) {
+      var vs = d.routes[i].vehicles || [];
+      for (var j = 0; j < vs.length; j++) {
+        var am = norm(vs[j].am_driver) === p, pm = norm(vs[j].pm_driver) === p;
+        if (am || pm) {
+          return { route: d.routes[i].route, shift: am ? 'am' : 'pm' };
+        }
+      }
+    }
+    return null;
+  }
+
   function pickDate(today) {
     if (!S.index.length) return null;
     var dates = S.index.map(function (x) { return x.date; });
@@ -770,8 +788,13 @@
         var vs = d.routes[r].vehicles || [];
         for (var v = 0; v < vs.length; v++) {
           if (norm(vs[v].am_driver) === p || norm(vs[v].pm_driver) === p) {
+            var spot = personSpot(order[i], name);
             S.lookup.date = order[i];
             S.lookup.route = d.routes[r].route;
+            if (spot && spot.shift) S.lookup.shift = spot.shift;
+            S.all.date = order[i];
+            S.all.route = d.routes[r].route;
+            S.all.find = '';
             return;
           }
         }
@@ -995,6 +1018,16 @@
 
   function setTab(tab) {
     if (tab !== 'mine' && tab !== 'lookup' && tab !== 'all' && tab !== 'menu') return;
+    /* 화면을 옮겨 갈 때도 지금 날짜에서 내 이름이 있는 노선·교대로 맞춰 준다 */
+    if (tab === 'all') {
+      ensureAll();
+      var spA = personSpot(S.all.date, S.person);
+      if (spA) S.all.route = spA.route;
+    } else if (tab === 'lookup') {
+      ensureLookup();
+      var spL = personSpot(S.lookup.date, S.person);
+      if (spL) { S.lookup.route = spL.route; S.lookup.shift = spL.shift; }
+    }
     S.tab = tab;
     storeSet('dj_tab_v1', tab);
     render();
@@ -1046,7 +1079,9 @@
       var c = e.target.closest ? e.target.closest('[data-date]') : null;
       if (!c) return;
       S.lookup.date = c.getAttribute('data-date');
-      S.lookup.route = null;
+      var spotLook = personSpot(S.lookup.date, S.person);
+      S.lookup.route = spotLook ? spotLook.route : null;
+      if (spotLook && spotLook.shift) S.lookup.shift = spotLook.shift;
       S.open = null;
       ensureLookup();
       renderLookup();
@@ -1094,7 +1129,8 @@
       if (!c) return;
       var ds = c.getAttribute('data-date');
       S.all.date = ds;
-      S.all.route = 'all';
+      var spotAll = personSpot(ds, S.person);
+      S.all.route = spotAll ? spotAll.route : 'all';
       if (!Object.prototype.hasOwnProperty.call(S.data, ds) && !S.loading[ds]) {
         S.loading[ds] = true;
         renderAll();
