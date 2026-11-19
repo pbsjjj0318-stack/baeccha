@@ -246,7 +246,8 @@
           : '이 날짜 배차표가 아직 없습니다.') + '</div></div>';
     }
     if (info.kind === 'off') {
-      return '<div class="' + cls + ' empty offcard"><div class="ctop">' + dateBit + '</div>' +
+      return '<div class="' + cls + ' empty offcard"><div class="ctop">' + dateBit +
+        '<span class="pill pill-off">휴무</span></div>' +
         '<div class="cnote">이 날은 배차가 없습니다.</div></div>';
     }
     if (info.kind === 'reserve') {
