@@ -845,7 +845,9 @@
     renderNameList(text);
     if (hit.length === 1) {
       setHint('');
-      setPerson(hit[0]);
+      /* '내 이름 바꾸기' 중에 마이크로 찾은 경우에도 키보드로 골랐을 때처럼
+         이 기기의 본인 이름으로 저장한다. */
+      if (S.setupMe) setMyName(hit[0]); else setPerson(hit[0]);
       return true;
     }
     setHint(hit.length ? hit.length + '명 찾았어요. 하나를 눌러 주세요.' : '그런 이름이 없어요. 다시 말해 주세요.');
