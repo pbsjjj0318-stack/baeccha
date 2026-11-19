@@ -138,7 +138,16 @@ button{font-family:inherit;cursor:pointer}
   box-shadow:0 1px 2px rgba(16,24,40,.04);
 }
 .row:focus-visible{box-shadow:0 0 0 3px rgba(29,78,216,.25)}
-.row.mine{background:#f2f7ff;border-color:var(--blue-line);border-left:5px solid var(--blue);padding-left:10px}
+/* 내 배차 줄만 '내 배차' 카드처럼 강조 */
+.row.mine{
+  background:linear-gradient(180deg,#eaf3ff 0%,#dbe9ff 100%);
+  border-color:#9fbdf2;border-left:7px solid var(--blue);padding-left:12px;
+  box-shadow:0 4px 16px rgba(29,78,216,.20),0 0 0 2px rgba(29,78,216,.08);
+}
+.row.mine .rowname{font-size:22px;color:#0b2f7a}
+.row.mine .rowveh{color:#1a3f7d}
+.row.mine .rtrips{font-size:22px;color:#0f1f38}
+.row.mine .rtrips .tr b{background:#1d4ed8;color:#fff;border-color:#1d4ed8}
 .rowline{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
 .rowname{font-size:20px;font-weight:800;letter-spacing:-.3px}
 .rowname.muted{color:#98a2b3;font-size:17px;font-weight:700}
