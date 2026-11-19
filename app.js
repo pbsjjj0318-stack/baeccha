@@ -324,6 +324,11 @@
     html += '<h2 class="grouphead"><span>다음 주 내 배차</span><span class="grange">' +
       dLabel(w2[0]) + '~' + dLabel(w2[6]) + '</span></h2>';
     html += w2.map(function (d) { return cardHtml(d, { todayDate: null }); }).join('');
+    /* 3주차(다음다음 주)까지 보여 준다 */
+    var w3 = weekDays(addDays(mon, 14));
+    html += '<h2 class="grouphead"><span>그다음 주 내 배차</span><span class="grange">' +
+      dLabel(w3[0]) + '~' + dLabel(w3[6]) + '</span></h2>';
+    html += w3.map(function (d) { return cardHtml(d, { todayDate: null }); }).join('');
     wrap.innerHTML = html;
 
     var first = S.index.length ? S.index[0].date : '';
