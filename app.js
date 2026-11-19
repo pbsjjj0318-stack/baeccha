@@ -295,6 +295,13 @@
 
   function renderMine() {
     var wrap = $('#mine');
+    /* 아직 이 기기의 내 이름을 고르지 않았다면 배차 대신 안내만 */
+    if (!S.person) {
+      wrap.innerHTML = '<div class="emptybox">위의 <b>이름 고르기</b>를 눌러 내 이름을 골라 주세요.' +
+        '<br>고르면 내 배차가 여기에 나옵니다.</div>';
+      $('#mineFoot').innerHTML = '';
+      return;
+    }
     var today = kstToday();
     var todayDate = pickDate(today);
     if (!todayDate) {
@@ -931,7 +938,7 @@
   }
 
   function renderChrome() {
-    $('#personName').textContent = S.person || defaultPerson();
+    $('#personName').textContent = S.person || '이름 고르기';
     var today = kstToday();
     var t = '오늘 ' + fullLabel(today);
     if (!S.index.length) t += ' · 불러오는 중';
@@ -1150,7 +1157,7 @@
 
     Promise.all([loadConfig(), loadIndex(), loadMenu()]).then(function () {
       var savedMe = myName();
-      S.person = savedMe || defaultPerson();
+      S.person = savedMe || '';
       first = pickDate(today);
       if (S.index.length) {
         S.index.forEach(function (x) { if (!Object.prototype.hasOwnProperty.call(S.data, x.date)) S.loading[x.date] = true; });
@@ -1182,7 +1189,8 @@
   }
 
   function ensureStart() {
-    S.person = storeGet(ME_KEY) || FALLBACK_PERSON;
+    /* 이름을 아직 안 골랐으면 비워 둔다 (남의 이름으로 시작하지 않게) */
+    S.person = storeGet(ME_KEY) || '';
     renderChrome();
   }
 
