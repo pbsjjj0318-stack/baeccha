@@ -23,6 +23,7 @@
     all: { date: null, route: 'all', find: '', cal: null },   // 전체시간표 화면
     menu: { data: null, loading: false, week: 0 },            // 식단표 화면
     open: null,
+    setupMe: false,     // 이름 시트가 '내 이름 고르기' 모드인지
     booted: false
   };
 
@@ -691,23 +692,45 @@
     var q = norm(filter || '');
     var list = allNames().filter(function (n) { return !q || norm(n).indexOf(q) >= 0; });
     var cur = norm(S.person);
+    var me = norm(storeGet(ME_KEY) || '');
     $('#nameList').innerHTML = list.length
       ? list.map(function (n) {
         var on = norm(n) === cur;
-        return '<button type="button" class="nameitem' + (on ? ' cur' : '') + '" data-name="' + esc(n) + '">' +
-          '<span>' + esc(n) + '</span>' + (on ? '<span class="ck">내 배차</span>' : '') + '</button>';
+        var isMe = !!me && norm(n) === me;
+        var badge = isMe ? '<span class="ck">내 이름</span>'
+          : (on && !S.setupMe ? '<span class="ck">보는 중</span>' : '');
+        return '<button type="button" class="nameitem' + (on || isMe ? ' cur' : '') + '" data-name="' + esc(n) + '">' +
+          '<span>' + esc(n) + '</span>' + badge + '</button>';
       }).join('')
       : '<div class="emptybox">그런 이름이 없습니다.</div>';
   }
 
-  function openSheet() {
+  /* openSheet('me') = 이 기기의 내 이름을 고르는 모드 */
+  function openSheet(mode) {
+    S.setupMe = (mode === 'me');
     $('#sheetWrap').hidden = false;
     $('#nameSearch').value = '';
     setHint('');
+    syncSheetHead();
     renderNameList('');
     setTimeout(function () { try { $('#nameSearch').focus(); } catch (e) {} }, 60);
   }
-  function closeSheet() { $('#sheetWrap').hidden = true; }
+  function closeSheet() {
+    S.setupMe = false;
+    $('#sheetWrap').hidden = true;
+    syncSheetHead();
+  }
+
+  /* 시트 머리말·안내문·버튼 글자를 지금 모드에 맞춘다 */
+  function syncSheetHead() {
+    var t = $('#sheetTitle'), n = $('#sheetNote'), b = $('#sheetMeBtn');
+    if (t) t.textContent = S.setupMe ? '내 이름 고르기' : '이름 선택';
+    if (n) {
+      n.hidden = !S.setupMe;
+      n.textContent = '이 기기에서 내 배차를 볼 이름을 골라 주세요.';
+    }
+    if (b) b.textContent = S.setupMe ? '그만두기' : '내 이름 바꾸기';
+  }
 
   function setPerson(name) {
     if (!name) return;
@@ -718,15 +741,19 @@
     render();
   }
 
-  /* 이 기기 사용자의 본인 이름. 한 번 정해지면 기기에 저장해 두고
-     앱을 열 때마다 이 값을 기준으로 삼는다. */
+  /* '내 이름 고르기' 모드에서 고른 이름을 이 기기의 본인 이름으로 저장 */
+  function setMyName(name) {
+    if (!name) return;
+    storeSet(ME_KEY, name);
+    S.person = name;
+    closeSheet();
+    render();
+  }
+
+  /* 이 기기 사용자의 본인 이름. 처음 한 번 고른 이름을 기기에 저장해 두고
+     앱을 열 때마다 이 값을 기준으로 삼는다. 아직 안 골랐으면 null. */
   function myName() {
-    var me = storeGet(ME_KEY);
-    if (!me) {
-      me = defaultPerson();
-      storeSet(ME_KEY, me);
-    }
-    return me;
+    return storeGet(ME_KEY);
   }
 
   /* ---------------- 이름 음성 찾기 ---------------- */
@@ -937,12 +964,21 @@
 
   /* ---------------- 이벤트 ---------------- */
   function wire() {
-    $('#personBtn').addEventListener('click', openSheet);
+    $('#personBtn').addEventListener('click', function () { openSheet(); });
     $('#sheetWrap').addEventListener('click', function (e) {
       var t = e.target;
       if (t && t.getAttribute && t.getAttribute('data-close')) closeSheet();
       var btn = t && t.closest ? t.closest('[data-name]') : null;
-      if (btn) setPerson(btn.getAttribute('data-name'));
+      if (btn) {
+        var nm = btn.getAttribute('data-name');
+        if (S.setupMe) setMyName(nm); else setPerson(nm);
+      }
+    });
+    var meBtn = $('#sheetMeBtn');
+    if (meBtn) meBtn.addEventListener('click', function () {
+      S.setupMe = !S.setupMe;
+      syncSheetHead();
+      renderNameList($('#nameSearch').value);
     });
     $('#nameSearch').addEventListener('input', function (e) { renderNameList(e.target.value); });
     var mic = $('#nameMic');
@@ -1113,7 +1149,8 @@
     var first = pickDate(today);
 
     Promise.all([loadConfig(), loadIndex(), loadMenu()]).then(function () {
-      S.person = myName();
+      var savedMe = myName();
+      S.person = savedMe || defaultPerson();
       first = pickDate(today);
       if (S.index.length) {
         S.index.forEach(function (x) { if (!Object.prototype.hasOwnProperty.call(S.data, x.date)) S.loading[x.date] = true; });
@@ -1121,7 +1158,10 @@
       ensureLookup();
       render();
 
-      if (!first) return;
+      if (!first) {
+        if (!savedMe) openSheet('me');
+        return;
+      }
 
       loadDate(first).then(function () {
         delete S.loading[first];
@@ -1133,6 +1173,8 @@
       }).then(function () {
         render();
         S.booted = true;
+        /* 이 기기에서 처음 열었다면 내 이름부터 고르게 한다 */
+        if (!storeGet(ME_KEY)) openSheet('me');
       });
     }).catch(function () {
       $('#mine').innerHTML = '<div class="emptybox">배차 데이터를 불러오지 못했습니다.<br>인터넷 연결을 확인한 뒤 앱을 다시 열어 주세요.</div>';

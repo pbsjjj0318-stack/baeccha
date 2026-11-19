@@ -211,6 +211,9 @@ button{font-family:inherit;cursor:pointer}
 }
 .sheethead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:18px;font-weight:800}
 .sheetclose{border:0;background:#eef1f6;color:#4a5568;border-radius:999px;padding:8px 15px;font-size:14px;font-weight:800}
+.sheetacts{display:flex;align-items:center;gap:8px}
+.sheetme{border:0;background:#eaf1ff;color:#1d4ed8;border-radius:999px;padding:8px 13px;font-size:14px;font-weight:800}
+.setupnote{padding:2px 4px 10px;color:#1d4ed8}
 .search{
   border:1px solid var(--line);background:#f7f9fc;border-radius:13px;
   padding:13px 15px;font-size:17px;width:100%;margin-bottom:6px;font-family:inherit;color:var(--txt);
