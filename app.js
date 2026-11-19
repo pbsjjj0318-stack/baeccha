@@ -434,7 +434,8 @@
     var rangeTxt = BOUNDARY[route]
       ? (shift === 'am' ? '오전 1~' + bb + '회' : '오후 ' + (bb + 1) + '~' + mx + '회')
       : '전체 회차';
-    head.innerHTML = '<span>' + esc(route) + '번 · ' + rangeTxt + '</span><span class="cnt">' +
+    head.innerHTML = '<span>' + esc(route) + '번 · ' + rangeTxt +
+      (S.person ? ' · ' + esc(S.person) + ' 님' : '') + '</span><span class="cnt">' +
       (r.vehicles || []).length + '대</span>';
 
     var rows = (r.vehicles || []).slice().sort(function (a, b2) { return a.no - b2.no; });
@@ -748,8 +749,34 @@
     /* 이름 시트에서 다른 사람을 골라 봐도 '내 이름'은 바뀌지 않는다.
        앱을 다시 열면 항상 이 기기의 본인 이름으로 돌아온다. */
     S.person = name;
+    focusPerson(name);
     closeSheet();
     render();
+  }
+
+  /* 고른 이름이 나오는 날짜·노선으로 전체 조회도 함께 맞춰 준다.
+     (내 배차에서 이름을 고르면 전체 조회도 그 사람 기준으로 보이게) */
+  function focusPerson(name) {
+    var p = norm(name);
+    if (!p || !S.index.length) return;
+    var today = kstToday();
+    var dates = S.index.map(function (x) { return x.date; });
+    var order = dates.filter(function (d) { return d >= today; })
+      .concat(dates.filter(function (d) { return d < today; }).reverse());
+    for (var i = 0; i < order.length; i++) {
+      var d = S.data[order[i]];
+      if (!d || !d.routes) continue;
+      for (var r = 0; r < d.routes.length; r++) {
+        var vs = d.routes[r].vehicles || [];
+        for (var v = 0; v < vs.length; v++) {
+          if (norm(vs[v].am_driver) === p || norm(vs[v].pm_driver) === p) {
+            S.lookup.date = order[i];
+            S.lookup.route = d.routes[r].route;
+            return;
+          }
+        }
+      }
+    }
   }
 
   /* '내 이름 고르기' 모드에서 고른 이름을 이 기기의 본인 이름으로 저장 */
@@ -757,6 +784,7 @@
     if (!name) return;
     storeSet(ME_KEY, name);
     S.person = name;
+    focusPerson(name);
     closeSheet();
     render();
   }
