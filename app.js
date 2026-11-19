@@ -866,12 +866,18 @@
 
   function renderMenu() {
     var box = $('#weekChips');
-    var weeks = S.menu.data || [];
+    var today = kstToday();
+    var rawWeeks = S.menu.data || [];
+    var weeks = rawWeeks.filter(function (w) {
+      return (w.days || []).some(function (d) { return d.date >= today; });
+    });
     if (!weeks.length) {
       $('#menuHead').innerHTML = '';
       $('#menuDays').innerHTML = '<div class="emptybox">' + (S.menu.loading
         ? '식단표를 불러오는 중…'
-        : '아직 식단표가 없습니다.<br>카페에 주간식단표가 올라오면 자동으로 채워집니다.') + '</div>';
+        : (rawWeeks.length
+          ? '오늘 이후 식단표가 아직 없습니다.<br>카페에 새 주간식단표가 올라오면 자동으로 채워집니다.'
+          : '아직 식단표가 없습니다.<br>카페에 주간식단표가 올라오면 자동으로 채워집니다.')) + '</div>';
       $('#menuFoot').innerHTML = '';
       box.innerHTML = '';
       return;
@@ -884,10 +890,10 @@
     }).join('');
 
     var w = weeks[S.menu.week];
-    var today = kstToday();
+    var days = (w.days || []).filter(function (d) { return d.date >= today; });
     $('#menuHead').innerHTML = '<span>' + esc(String(w.start)) + ' ~ ' + esc(String(w.end)) + ' 식단표</span><span class="cnt">' +
-      w.days.length + '일</span>';
-    $('#menuDays').innerHTML = w.days.map(function (d) {
+      days.length + '일</span>';
+    $('#menuDays').innerHTML = days.map(function (d) {
       return '<div class="mcard tap' + (d.date === today ? ' today' : '') + '" role="button" tabindex="0">' +
         '<div class="mtop"><b class="mdate">' + fullLabel(d.date) + '</b>' +
         (d.date === today ? '<span class="pill pill-today">오늘</span>' : '') + '</div>' +
