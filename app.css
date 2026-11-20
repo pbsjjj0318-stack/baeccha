@@ -151,6 +151,17 @@ button{font-family:inherit;cursor:pointer}
 .row.mine .rowveh{color:#1a3f7d}
 .row.mine .rtrips{font-size:22px;color:#0f1f38}
 .row.mine .rtrips .tr b{background:#1d4ed8;color:#fff;border-color:#1d4ed8}
+/* 오후 교대인 날은 내 배차 줄도 연한 연두색 계열로 */
+.row.mine.pm{
+  background:linear-gradient(180deg,#f3fce8 0%,#e4f6cf 100%);
+  border-color:#b9e08c;border-left:7px solid #7cb62f;
+  box-shadow:0 4px 16px rgba(101,163,13,.20),0 0 0 2px rgba(101,163,13,.08);
+}
+.row.mine.pm .rowname{color:#2f5714}
+.row.mine.pm .rowveh{color:#41691f}
+.row.mine.pm .rtrips{color:#132e06}
+.row.mine.pm .rtrips .tr b{background:#65a30d;color:#fff;border-color:#65a30d}
+.row.mine.pm .badge{background:#65a30d}
 .rowline{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
 .rowname{font-size:20px;font-weight:800;letter-spacing:-.3px}
 .rowname.muted{color:#98a2b3;font-size:17px;font-weight:700}

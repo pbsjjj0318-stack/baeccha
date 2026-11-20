@@ -483,7 +483,7 @@
       var unsure = unc
         ? '<div class="rowunsure">이 줄은 표 판독이 불확실합니다. 다른 이름일 수 있습니다.</div>'
         : '';
-      return '<div class="row' + (mine ? ' mine' : '') + (open ? ' open' : '') + '" role="button" tabindex="0" data-key="' +
+      return '<div class="row' + (mine ? ' mine' : '') + (mine && shift === 'pm' ? ' pm' : '') + (open ? ' open' : '') + '" role="button" tabindex="0" data-key="' +
         esc(key) + '"><div class="rowline">' + nameHtml +
         '<span class="rowveh">' + esc(veh) + '</span>' +
         (mine ? '<span class="badge">내 배차</span>' : '') + '</div>' +
