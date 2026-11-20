@@ -249,9 +249,9 @@
   function cardHtml(ds, opts) {
     var info = resolveDay(ds, S.person);
     var isToday = (ds === opts.todayDate);
-    /* 카드 전체 색: 그 날 교대가 모두 오후일 때만 카드 전체를 연두색 계열로 */
+    /* 당일 카드만: 그 날 교대가 모두 오후일 때 카드 전체를 연두색 계열로 (다른 날짜는 기존 그대로) */
     var shiftCls = '';
-    if (info.kind === 'ok' && info.items.length) {
+    if (isToday && info.kind === 'ok' && info.items.length) {
       var sh0 = info.items[0].shift;
       var same = info.items.every(function (x) { return x.shift === sh0; });
       if (same && sh0 === 'pm') shiftCls = ' pm';
