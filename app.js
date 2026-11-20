@@ -249,7 +249,14 @@
   function cardHtml(ds, opts) {
     var info = resolveDay(ds, S.person);
     var isToday = (ds === opts.todayDate);
-    var cls = 'card' + (isToday ? ' today' : '');
+    /* 카드 전체 색: 그 날 교대가 모두 오후일 때만 카드 전체를 연두색 계열로 */
+    var shiftCls = '';
+    if (info.kind === 'ok' && info.items.length) {
+      var sh0 = info.items[0].shift;
+      var same = info.items.every(function (x) { return x.shift === sh0; });
+      if (same && sh0 === 'pm') shiftCls = ' pm';
+    }
+    var cls = 'card' + (isToday ? ' today' : '') + shiftCls;
     var dateBit = '<span class="cdate">' + fullLabel(ds) + '</span>';
 
     if (info.kind === 'loading') {
@@ -298,8 +305,7 @@
       if (isUncertainRow(ds, it.route, it.vno, it.shift)) {
         extra += '<div class="cnote">이 줄은 이름 판독이 불확실합니다(다른 이름일 수 있음).</div>';
       }
-      return '<div class="citem ' + (it.shift === 'am' ? 'am' : 'pm') +
-        (it.trips.length ? ' tap' : '') + '"' +
+      return '<div class="citem' + (it.trips.length ? ' tap' : '') + '"' +
         (it.trips.length ? ' role="button" tabindex="0"' : '') +
         '><div class="cmeta">' + esc(meta) + '</div>' +
         '<div class="ctrips">' + trips + '</div>' + bigTrips + extra + '</div>';

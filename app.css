@@ -91,12 +91,9 @@ button{font-family:inherit;cursor:pointer}
 .card.today .ctrips .tr{flex:0 0 auto}
 .card.today .ctrips .tr b{background:#1d4ed8;color:#fff;border-color:#1d4ed8;font-weight:900}
 .citem+.citem{margin-top:12px;padding-top:12px;border-top:1px dashed #d8e2f5}
-/* 오후 교대 카드는 연한 연두색 계열로 구분 (오전은 기본 흰 카드 그대로) */
-.citem.pm{background:#f4fbe9;border:1px solid #d9efbf;border-left:5px solid #86c33a;border-radius:12px;padding:11px 12px 12px}
-.citem+.citem.pm{margin-top:12px;padding-top:11px;border-top:1px solid #d9efbf}
-.citem.pm .tr b{background:#e8f7d4;color:#3f6212;border-color:#c8e6a6}
-.card.today .citem.pm{background:#effae0;border-color:#c9e8a3;border-left-color:#7cb62f}
-.card.today .citem.pm .tr b{background:#65a30d;color:#fff;border-color:#65a30d}
+/* 오후 교대 날은 카드 전체를 연한 연두색 계열로 (오전은 기본 흰 카드 그대로) */
+.card.pm{background:#f3fbe8;border-color:#d3eab6;border-left:5px solid #86c33a;padding-left:12px}
+.card.today.pm{background:linear-gradient(180deg,#f3fce8 0%,#e4f6cf 100%);border-color:#b9e08c;border-left:7px solid #7cb62f;box-shadow:0 4px 16px rgba(101,163,13,.20),0 0 0 2px rgba(101,163,13,.08)}
 .citem.tap{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .cbig{display:none;margin-top:9px;grid-template-columns:1fr 1fr;gap:8px}
 .citem.open .ctrips{display:none}
@@ -108,9 +105,9 @@ button{font-family:inherit;cursor:pointer}
 
 .pill{display:inline-block;border-radius:999px;padding:3px 11px;font-size:13px;font-weight:800;background:#eaeef5;color:#5b6577;white-space:nowrap}
 .pill-am{background:#dbeafe;color:#1d4ed8}
-.pill-pm{background:#e6f7cd;color:#3f6212}
+.pill-pm{background:#ffedd5;color:#c2410c}
 .card.today .pill-am{background:#1d4ed8;color:#fff}
-.card.today .pill-pm{background:#65a30d;color:#fff}
+.card.today .pill-pm{background:#ea580c;color:#fff}
 .pill-off{background:#dc2626;color:#fff;font-size:14.5px;padding:4px 13px;font-weight:900;box-shadow:0 2px 6px rgba(220,38,38,.28);letter-spacing:.3px}
 
 /* ===== 조회 ===== */
