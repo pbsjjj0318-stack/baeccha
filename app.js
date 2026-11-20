@@ -298,7 +298,8 @@
       if (isUncertainRow(ds, it.route, it.vno, it.shift)) {
         extra += '<div class="cnote">이 줄은 이름 판독이 불확실합니다(다른 이름일 수 있음).</div>';
       }
-      return '<div class="citem' + (it.trips.length ? ' tap' : '') + '"' +
+      return '<div class="citem ' + (it.shift === 'am' ? 'am' : 'pm') +
+        (it.trips.length ? ' tap' : '') + '"' +
         (it.trips.length ? ' role="button" tabindex="0"' : '') +
         '><div class="cmeta">' + esc(meta) + '</div>' +
         '<div class="ctrips">' + trips + '</div>' + bigTrips + extra + '</div>';
