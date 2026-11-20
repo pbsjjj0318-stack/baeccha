@@ -91,9 +91,9 @@ button{font-family:inherit;cursor:pointer}
 .card.today .ctrips .tr{flex:0 0 auto}
 .card.today .ctrips .tr b{background:#1d4ed8;color:#fff;border-color:#1d4ed8;font-weight:900}
 .citem+.citem{margin-top:12px;padding-top:12px;border-top:1px dashed #d8e2f5}
-/* 오후 교대 날은 카드 전체를 연한 연두색 계열로 (오전은 기본 흰 카드 그대로) */
-.card.pm{background:#f3fbe8;border-color:#d3eab6;border-left:5px solid #86c33a;padding-left:12px}
-.card.today.pm{background:linear-gradient(180deg,#f3fce8 0%,#e4f6cf 100%);border-color:#b9e08c;border-left:7px solid #7cb62f;box-shadow:0 4px 16px rgba(101,163,13,.20),0 0 0 2px rgba(101,163,13,.08)}
+/* 오전 교대 날은 카드 전체를 연한 연두색 계열로 (오후는 기본 파란 카드 그대로) */
+.card.am{background:#f3fbe8;border-color:#d3eab6;border-left:5px solid #86c33a;padding-left:12px}
+.card.today.am{background:linear-gradient(180deg,#f3fce8 0%,#e4f6cf 100%);border-color:#b9e08c;border-left:7px solid #7cb62f;box-shadow:0 4px 16px rgba(101,163,13,.20),0 0 0 2px rgba(101,163,13,.08)}
 .citem.tap{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .cbig{display:none;margin-top:9px;grid-template-columns:1fr 1fr;gap:8px}
 .citem.open .ctrips{display:none}
@@ -151,17 +151,17 @@ button{font-family:inherit;cursor:pointer}
 .row.mine .rowveh{color:#1a3f7d}
 .row.mine .rtrips{font-size:22px;color:#0f1f38}
 .row.mine .rtrips .tr b{background:#1d4ed8;color:#fff;border-color:#1d4ed8}
-/* 오후 교대인 날은 내 배차 줄도 연한 연두색 계열로 */
-.row.mine.pm{
+/* 오전 교대인 날은 내 배차 줄도 연한 연두색 계열로 */
+.row.mine.am{
   background:linear-gradient(180deg,#f3fce8 0%,#e4f6cf 100%);
   border-color:#b9e08c;border-left:7px solid #7cb62f;
   box-shadow:0 4px 16px rgba(101,163,13,.20),0 0 0 2px rgba(101,163,13,.08);
 }
-.row.mine.pm .rowname{color:#2f5714}
-.row.mine.pm .rowveh{color:#41691f}
-.row.mine.pm .rtrips{color:#132e06}
-.row.mine.pm .rtrips .tr b{background:#65a30d;color:#fff;border-color:#65a30d}
-.row.mine.pm .badge{background:#65a30d}
+.row.mine.am .rowname{color:#2f5714}
+.row.mine.am .rowveh{color:#41691f}
+.row.mine.am .rtrips{color:#132e06}
+.row.mine.am .rtrips .tr b{background:#65a30d;color:#fff;border-color:#65a30d}
+.row.mine.am .badge{background:#65a30d}
 .rowline{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
 .rowname{font-size:20px;font-weight:800;letter-spacing:-.3px}
 .rowname.muted{color:#98a2b3;font-size:17px;font-weight:700}

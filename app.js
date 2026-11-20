@@ -249,12 +249,12 @@
   function cardHtml(ds, opts) {
     var info = resolveDay(ds, S.person);
     var isToday = (ds === opts.todayDate);
-    /* 당일 카드만: 그 날 교대가 모두 오후일 때 카드 전체를 연두색 계열로 (다른 날짜는 기존 그대로) */
+    /* 당일 카드만: 그 날 교대가 모두 오전일 때 카드 전체를 연두색 계열로 (다른 날짜는 기존 그대로) */
     var shiftCls = '';
     if (isToday && info.kind === 'ok' && info.items.length) {
       var sh0 = info.items[0].shift;
       var same = info.items.every(function (x) { return x.shift === sh0; });
-      if (same && sh0 === 'pm') shiftCls = ' pm';
+      if (same && sh0 === 'am') shiftCls = ' am';
     }
     var cls = 'card' + (isToday ? ' today' : '') + shiftCls;
     var dateBit = '<span class="cdate">' + fullLabel(ds) + '</span>';
@@ -483,7 +483,7 @@
       var unsure = unc
         ? '<div class="rowunsure">이 줄은 표 판독이 불확실합니다. 다른 이름일 수 있습니다.</div>'
         : '';
-      return '<div class="row' + (mine ? ' mine' : '') + (mine && shift === 'pm' ? ' pm' : '') + (open ? ' open' : '') + '" role="button" tabindex="0" data-key="' +
+      return '<div class="row' + (mine ? ' mine' : '') + (mine && shift === 'am' ? ' am' : '') + (open ? ' open' : '') + '" role="button" tabindex="0" data-key="' +
         esc(key) + '"><div class="rowline">' + nameHtml +
         '<span class="rowveh">' + esc(veh) + '</span>' +
         (mine ? '<span class="badge">내 배차</span>' : '') + '</div>' +
