@@ -316,3 +316,13 @@ button{font-family:inherit;cursor:pointer}
 /* 상단 우측 회사명 */
 .toprow{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .corp{font-size:14px;font-weight:800;color:#1d4ed8;white-space:nowrap;letter-spacing:-.3px}
+
+/* ===== 전체 조회: 그 사람 상태 안내 ===== */
+.personnote{
+  margin:10px 0 4px;padding:12px 14px;border-radius:14px;
+  background:#fff7e6;border:1px solid #f5d79a;color:#8a5a00;
+  font-weight:800;font-size:15px;line-height:1.5;
+}
+.personnote.off{background:#eef4ff;border-color:#c8d9f7;color:#2a4d86}
+.personnote small{display:block;margin-top:3px;font-weight:700;font-size:13px;color:#8e7a4e}
+.personnote.off small{color:#5c74a0}

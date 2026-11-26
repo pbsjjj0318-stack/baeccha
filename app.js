@@ -497,6 +497,10 @@
     var box = $('#rows');
     var head = $('#listHead');
     var d = ds ? S.data[ds] : undefined;
+    var note = $('#lookupNote');
+    note.hidden = true;
+    note.className = 'personnote';
+    note.innerHTML = '';
 
     if (!ds) { box.innerHTML = '<div class="loading">불러오는 중…</div>'; head.innerHTML = ''; return; }
     if (S.loading[ds]) {
@@ -562,9 +566,17 @@
     var foot = '≈ 표에 분(分)만 인쇄된 칸은 위 회차의 시(時)를 이어받아 복원한 시각입니다.';
     if (!BOUNDARY[route]) foot += '<br>이 노선은 표에 오전/오후 굵은 구분선이 없어 차량 전체 회차를 보여줍니다.';
     if (S.person && furloughHits(d, S.person).length) {
+      note.className = 'personnote';
+      note.innerHTML = esc(S.person) + ' 님은 이 날 <b>휴무</b>입니다.' +
+        '<small>휴무일에도 소속 ' + esc(route || '') + '번 노선 표를 보여 드립니다.</small>';
+      note.hidden = false;
       foot += '<br>' + esc(S.person) + ' 님은 이 날 휴무입니다.';
     } else if (S.person && !inRoute(ds, route, S.person) && ownRoute(S.person) &&
       ownRoute(S.person).route === route) {
+      note.className = 'personnote off';
+      note.innerHTML = esc(S.person) + ' 님은 이 날 표에 이름이 없습니다.' +
+        '<small>소속 ' + esc(route || '') + '번 노선 표를 보여 드립니다.</small>';
+      note.hidden = false;
       foot += '<br>' + esc(S.person) + ' 님은 이 날 표에 이름이 없어 소속 ' + esc(route) + '번 노선으로 보여 드립니다.';
     }
     $('#lookupFoot').innerHTML = foot;
