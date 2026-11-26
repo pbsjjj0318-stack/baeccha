@@ -224,6 +224,13 @@
         }
       }
     }
+    /* 그 날 배차가 없어 휴무 명단에만 있어도 소속 노선은 알 수 있다
+       (휴무일에도 그 사람 노선을 불러오게) */
+    var off = furloughHits(d, name);
+    if (off.length) {
+      var sh = off[0].shift;
+      return { route: off[0].route, shift: (sh === 'am' || sh === 'pm') ? sh : null, off: true };
+    }
     return null;
   }
 
@@ -495,6 +502,9 @@
 
     var foot = '≈ 표에 분(分)만 인쇄된 칸은 위 회차의 시(時)를 이어받아 복원한 시각입니다.';
     if (!BOUNDARY[route]) foot += '<br>이 노선은 표에 오전/오후 굵은 구분선이 없어 차량 전체 회차를 보여줍니다.';
+    if (S.person && furloughHits(d, S.person).length) {
+      foot += '<br>' + esc(S.person) + ' 님은 이 날 휴무입니다.';
+    }
     $('#lookupFoot').innerHTML = foot;
   }
 
@@ -1035,7 +1045,7 @@
     } else if (tab === 'lookup') {
       ensureLookup();
       var spL = personSpot(S.lookup.date, S.person);
-      if (spL) { S.lookup.route = spL.route; S.lookup.shift = spL.shift; }
+      if (spL) { S.lookup.route = spL.route; if (spL.shift) S.lookup.shift = spL.shift; }
     }
     S.tab = tab;
     storeSet('dj_tab_v1', tab);
@@ -1298,7 +1308,8 @@
       render();
     },
     person: function (n) { S.person = n; render(); },
-    resolveDay: resolveDay
+    resolveDay: resolveDay,
+    personSpot: personSpot
   };
 
   /* 서비스 워커 (홈 화면 앱처럼 동작) */
