@@ -231,6 +231,36 @@
       var sh = off[0].shift;
       return { route: off[0].route, shift: (sh === 'am' || sh === 'pm') ? sh : null, off: true };
     }
+    /* 배차에도 휴무 명단에도 이름이 없으면, 가장 가까운 날의 노선을 빌려 온다
+       (표에 아직 안 적힌 날에도 다른 노선이 뜨지 않게) */
+    var near = nearbySpot(ds, name);
+    if (near) return near;
+    return null;
+  }
+
+  function nearbySpot(ds, name) {
+    var p = norm(name);
+    if (!p || !ds || !S.index.length) return null;
+    var list = S.index.map(function (x) { return x.date; });
+    var here = list.indexOf(ds);
+    for (var k = 1; k < list.length; k++) {
+      var cand = [];
+      if (here >= 0) { if (list[here - k]) cand.push(list[here - k]); if (list[here + k]) cand.push(list[here + k]); }
+      else { if (list[k]) cand.push(list[k]); }
+      for (var c = 0; c < cand.length; c++) {
+        var d2 = S.data[cand[c]];
+        if (!d2 || !d2.routes) continue;
+        for (var i = 0; i < d2.routes.length; i++) {
+          var vs = d2.routes[i].vehicles || [];
+          for (var j = 0; j < vs.length; j++) {
+            var am = norm(vs[j].am_driver) === p, pm = norm(vs[j].pm_driver) === p;
+            if (am || pm) {
+              return { route: d2.routes[i].route, shift: am ? 'am' : 'pm', near: cand[c], unknown: true };
+            }
+          }
+        }
+      }
+    }
     return null;
   }
 
@@ -394,7 +424,10 @@
       var d = S.data[S.lookup.date];
       if (d && d.routes) {
         var have = d.routes.map(function (r) { return r.route; });
-        if (have.indexOf(S.lookup.route) < 0) S.lookup.route = have[0] || null;
+        if (have.indexOf(S.lookup.route) < 0) {
+          var keep = S.person ? (personSpot(S.lookup.date, S.person) || {}).route : null;
+          S.lookup.route = keep || have[0] || null;
+        }
       }
     }
   }
@@ -504,6 +537,12 @@
     if (!BOUNDARY[route]) foot += '<br>이 노선은 표에 오전/오후 굵은 구분선이 없어 차량 전체 회차를 보여줍니다.';
     if (S.person && furloughHits(d, S.person).length) {
       foot += '<br>' + esc(S.person) + ' 님은 이 날 휴무입니다.';
+    } else if (S.person && nearbySpot(ds, S.person)) {
+      var nf = nearbySpot(ds, S.person);
+      if (nf.unknown) {
+        foot += '<br>' + esc(S.person) + ' 님은 이 날 표에 아직 이름이 없습니다. ' +
+          dLabel(nf.near) + ' 기준 ' + esc(nf.route) + '번 노선으로 보여 드립니다.';
+      }
     }
     $('#lookupFoot').innerHTML = foot;
   }
