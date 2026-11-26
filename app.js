@@ -231,37 +231,63 @@
       var sh = off[0].shift;
       return { route: off[0].route, shift: (sh === 'am' || sh === 'pm') ? sh : null, off: true };
     }
-    /* 배차에도 휴무 명단에도 이름이 없으면, 가장 가까운 날의 노선을 빌려 온다
+    /* 배차에도 휴무 명단에도 이름이 없으면 그 사람 소속 노선으로 보여 준다
        (표에 아직 안 적힌 날에도 다른 노선이 뜨지 않게) */
-    var near = nearbySpot(ds, name);
-    if (near) return near;
+    var own = ownRoute(name);
+    if (own) return { route: own.route, shift: null, own: true };
     return null;
   }
 
-  function nearbySpot(ds, name) {
+  /* 이름 → 소속 노선. 들어온 모든 날 자료에서 가장 많이 나온 노선을 그 사람 노선으로 본다. */
+  function personRouteMap() {
+    var last = S.index.length ? S.index[S.index.length - 1].date : '';
+    var sig = S.index.length + '|' + last + '|' + Object.keys(S.data).length;
+    if (S._prMap && S._prSig === sig) return S._prMap;
+    var acc = {};
+    Object.keys(S.data).forEach(function (ds) {
+      var d = S.data[ds];
+      if (!d || !d.routes) return;
+      d.routes.forEach(function (r) {
+        (r.vehicles || []).forEach(function (v) {
+          [v.am_driver, v.pm_driver].forEach(function (n) {
+            var p = norm(n);
+            if (!p) return;
+            var e = acc[p] || (acc[p] = { count: {}, total: 0 });
+            e.count[r.route] = (e.count[r.route] || 0) + 1;
+            e.total++;
+          });
+        });
+      });
+    });
+    var out = {};
+    Object.keys(acc).forEach(function (p) {
+      var c = acc[p].count, best = null, bc = -1;
+      Object.keys(c).forEach(function (rt) { if (c[rt] > bc) { bc = c[rt]; best = rt; } });
+      out[p] = { route: best, count: bc, total: acc[p].total };
+    });
+    S._prMap = out;
+    S._prSig = sig;
+    return out;
+  }
+
+  function ownRoute(name) {
     var p = norm(name);
-    if (!p || !ds || !S.index.length) return null;
-    var list = S.index.map(function (x) { return x.date; });
-    var here = list.indexOf(ds);
-    for (var k = 1; k < list.length; k++) {
-      var cand = [];
-      if (here >= 0) { if (list[here - k]) cand.push(list[here - k]); if (list[here + k]) cand.push(list[here + k]); }
-      else { if (list[k]) cand.push(list[k]); }
-      for (var c = 0; c < cand.length; c++) {
-        var d2 = S.data[cand[c]];
-        if (!d2 || !d2.routes) continue;
-        for (var i = 0; i < d2.routes.length; i++) {
-          var vs = d2.routes[i].vehicles || [];
-          for (var j = 0; j < vs.length; j++) {
-            var am = norm(vs[j].am_driver) === p, pm = norm(vs[j].pm_driver) === p;
-            if (am || pm) {
-              return { route: d2.routes[i].route, shift: am ? 'am' : 'pm', near: cand[c], unknown: true };
-            }
-          }
-        }
+    if (!p || !S.index.length) return null;
+    return personRouteMap()[p] || null;
+  }
+
+  /* 그 날 그 노선 표에 이 사람 이름이 있는지 */
+  function inRoute(ds, route, name) {
+    var d = S.data[ds], p = norm(name);
+    if (!d || !d.routes || !p) return false;
+    for (var i = 0; i < d.routes.length; i++) {
+      if (d.routes[i].route !== route) continue;
+      var vs = d.routes[i].vehicles || [];
+      for (var j = 0; j < vs.length; j++) {
+        if (norm(vs[j].am_driver) === p || norm(vs[j].pm_driver) === p) return true;
       }
     }
-    return null;
+    return false;
   }
 
   function pickDate(today) {
@@ -537,12 +563,9 @@
     if (!BOUNDARY[route]) foot += '<br>이 노선은 표에 오전/오후 굵은 구분선이 없어 차량 전체 회차를 보여줍니다.';
     if (S.person && furloughHits(d, S.person).length) {
       foot += '<br>' + esc(S.person) + ' 님은 이 날 휴무입니다.';
-    } else if (S.person && nearbySpot(ds, S.person)) {
-      var nf = nearbySpot(ds, S.person);
-      if (nf.unknown) {
-        foot += '<br>' + esc(S.person) + ' 님은 이 날 표에 아직 이름이 없습니다. ' +
-          dLabel(nf.near) + ' 기준 ' + esc(nf.route) + '번 노선으로 보여 드립니다.';
-      }
+    } else if (S.person && !inRoute(ds, route, S.person) && ownRoute(S.person) &&
+      ownRoute(S.person).route === route) {
+      foot += '<br>' + esc(S.person) + ' 님은 이 날 표에 이름이 없어 소속 ' + esc(route) + '번 노선으로 보여 드립니다.';
     }
     $('#lookupFoot').innerHTML = foot;
   }
