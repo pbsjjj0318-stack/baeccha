@@ -1202,7 +1202,7 @@
         if (!live || idv !== id) return;
         live = false; id = null;
         /* 가로로 충분히, 그리고 세로보다 확실히 크게 넘겼을 때만 달을 바꾼다 */
-        if (Math.abs(dx) < 48 || Math.abs(dx) <= Math.abs(dy) * 1.4) return;
+        if (Math.abs(dx) < 84 || Math.abs(dx) <= Math.abs(dy) * 1.8) return;
         quiet = Date.now() + 600;   /* 넘긴 손가락이 날짜를 누른 것으로 잡히지 않게 */
         goLookupMonth(shiftYm(calMonth('lookup'), dx < 0 ? 1 : -1));
       }
