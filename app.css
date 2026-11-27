@@ -273,7 +273,7 @@ button{font-family:inherit;cursor:pointer}
 }
 
 /* ===== 전체시간표 날짜 달력 ===== */
-.cal{background:#fff;border:1px solid var(--line);border-radius:16px;padding:10px 10px 8px;box-shadow:0 1px 3px rgba(20,35,60,.05)}
+.cal{background:#fff;border:1px solid var(--line);border-radius:16px;padding:10px 10px 8px;box-shadow:0 1px 3px rgba(20,35,60,.05);touch-action:pan-y}
 .calhead{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:2px 4px 8px}
 .calmonth{font-size:16px;font-weight:900;color:#1c2b45;letter-spacing:-.3px}
 .calnav{border:0;background:#eef2f9;color:#41506a;border-radius:9px;width:32px;height:30px;font-size:13px;font-weight:900}

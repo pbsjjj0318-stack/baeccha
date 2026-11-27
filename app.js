@@ -458,6 +458,28 @@
     }
   }
 
+  /* 달 이동 — ◀ ▶ 버튼과 좌우 스와이프가 함께 쓴다 */
+  function goLookupMonth(ym) {
+    if (!ym || !/^\d{4}-\d{2}$/.test(ym)) return;
+    S.lookup.cal = ym;
+    if ((S.lookup.date || '').slice(0, 7) !== ym) {
+      var pick = null;
+      S.index.forEach(function (x) { if (!pick && x.date.slice(0, 7) === ym) pick = x.date; });
+      S.lookup.date = pick || (kstToday().slice(0, 7) === ym ? kstToday() : ym + '-01');
+      S.lookup.route = null;
+    }
+    S.open = null;
+    ensureLookup();
+    renderLookup();
+  }
+
+  /* 달을 몇 달 옆으로 옮긴 'YYYY-MM' */
+  function shiftYm(ym, by) {
+    var y = parseInt(ym.slice(0, 4), 10);
+    var m = parseInt(ym.slice(5, 7), 10);
+    return new Date(Date.UTC(y, m - 1 + by, 1)).toISOString().slice(0, 7);
+  }
+
   function renderLookup() {
     ensureLookup();
     var today = kstToday();
@@ -641,7 +663,7 @@
       '<button type="button" class="calnav" data-cal="' + next + '">▶</button>' +
       '</div>' +
       '<div class="calgrid">' + cells.join('') + '</div>' +
-      '<div class="calfoot">파란 날은 배차표가 들어온 날입니다. 날짜를 누르면 그 날 시간표를 봅니다.</div>' +
+      '<div class="calfoot">파란 날은 배차표가 들어온 날입니다. 날짜를 누르면 그 날 시간표를 봅니다. 달력은 좌우로 넘겨도 됩니다.</div>' +
       '</div>';
   }
 
@@ -1162,20 +1184,41 @@
       b.addEventListener('click', function () { setTab(b.getAttribute('data-tab')); });
     });
 
+    /* 달력 좌우 스와이프: 왼쪽으로 넘기면 다음 달, 오른쪽으로 넘기면 이전 달 */
+    var calSwipe = (function () {
+      var box = $('#dateChips');
+      var sx = 0, sy = 0, dx = 0, dy = 0, live = false, quiet = 0;
+      function inCal(el) { return !!(el && el.closest && el.closest('.cal')); }
+      box.addEventListener('touchstart', function (e) {
+        live = false;
+        if (e.touches.length !== 1 || !inCal(e.target)) return;
+        live = true;
+        sx = e.touches[0].clientX;
+        sy = e.touches[0].clientY;
+        dx = 0; dy = 0;
+      }, { passive: true });
+      box.addEventListener('touchmove', function (e) {
+        if (!live || e.touches.length !== 1) return;
+        dx = e.touches[0].clientX - sx;
+        dy = e.touches[0].clientY - sy;
+      }, { passive: true });
+      box.addEventListener('touchend', function (e) {
+        if (!live) return;
+        live = false;
+        if (e.touches && e.touches.length) return;
+        if (Math.abs(dx) < 48 || Math.abs(dx) <= Math.abs(dy) * 1.4) return;
+        quiet = Date.now() + 500;   /* 넘긴 손가락이 날짜를 누른 것으로 잡히지 않게 */
+        goLookupMonth(shiftYm(calMonth('lookup'), dx < 0 ? 1 : -1));
+      }, { passive: true });
+      box.addEventListener('touchcancel', function () { live = false; }, { passive: true });
+      return { quiet: function () { return Date.now() < quiet; } };
+    })();
+
     $('#dateChips').addEventListener('click', function (e) {
+      if (calSwipe.quiet()) return;
       var nav2 = e.target.closest ? e.target.closest('[data-cal]') : null;
       if (nav2) {
-        var ym2 = nav2.getAttribute('data-cal');
-        S.lookup.cal = ym2;
-        if ((S.lookup.date || '').slice(0, 7) !== ym2) {
-          var pick = null;
-          S.index.forEach(function (x) { if (!pick && x.date.slice(0, 7) === ym2) pick = x.date; });
-          S.lookup.date = pick || (kstToday().slice(0, 7) === ym2 ? kstToday() : ym2 + '-01');
-          S.lookup.route = null;
-        }
-        S.open = null;
-        ensureLookup();
-        renderLookup();
+        goLookupMonth(nav2.getAttribute('data-cal'));
         return;
       }
       var c = e.target.closest ? e.target.closest('[data-date]') : null;
