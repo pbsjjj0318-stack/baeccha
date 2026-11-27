@@ -1064,7 +1064,16 @@
       box.innerHTML = '';
       return;
     }
-    if (!(S.menu.week >= 0 && S.menu.week < weeks.length)) S.menu.week = weeks.length - 1;
+    // 가까운 주가 앞으로 오도록 날짜 오름차순으로 정렬
+    weeks.sort(function (a, b) { return String(a.start) < String(b.start) ? -1 : (String(a.start) > String(b.start) ? 1 : 0); });
+    var todayWeek = -1;
+    for (var wi = 0; wi < weeks.length; wi++) {
+      if (today >= String(weeks[wi].start) && today <= String(weeks[wi].end)) { todayWeek = wi; break; }
+    }
+    if (!S.menu.init || !(S.menu.week >= 0 && S.menu.week < weeks.length)) {
+      S.menu.week = todayWeek >= 0 ? todayWeek : 0;
+      S.menu.init = true;
+    }
 
     box.innerHTML = weeks.map(function (w, i) {
       return '<button type="button" class="chip' + (i === S.menu.week ? ' on' : '') +
