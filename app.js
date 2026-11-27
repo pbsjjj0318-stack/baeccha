@@ -1187,30 +1187,51 @@
     /* 달력 좌우 스와이프: 왼쪽으로 넘기면 다음 달, 오른쪽으로 넘기면 이전 달 */
     var calSwipe = (function () {
       var box = $('#dateChips');
-      var sx = 0, sy = 0, dx = 0, dy = 0, live = false, quiet = 0;
+      var sx = 0, sy = 0, dx = 0, dy = 0, live = false, quiet = 0, id = null;
       function inCal(el) { return !!(el && el.closest && el.closest('.cal')); }
-      box.addEventListener('touchstart', function (e) {
-        live = false;
-        if (e.touches.length !== 1 || !inCal(e.target)) return;
-        live = true;
-        sx = e.touches[0].clientX;
-        sy = e.touches[0].clientY;
-        dx = 0; dy = 0;
-      }, { passive: true });
-      box.addEventListener('touchmove', function (e) {
-        if (!live || e.touches.length !== 1) return;
-        dx = e.touches[0].clientX - sx;
-        dy = e.touches[0].clientY - sy;
-      }, { passive: true });
-      box.addEventListener('touchend', function (e) {
-        if (!live) return;
-        live = false;
-        if (e.touches && e.touches.length) return;
+      function begin(idv, x, y, el) {
+        live = false; dx = 0; dy = 0; id = idv;
+        if (!inCal(el)) return;
+        live = true; sx = x; sy = y;
+      }
+      function move(idv, x, y) {
+        if (!live || idv !== id) return;
+        dx = x - sx; dy = y - sy;
+      }
+      function end(idv) {
+        if (!live || idv !== id) return;
+        live = false; id = null;
+        /* 가로로 충분히, 그리고 세로보다 확실히 크게 넘겼을 때만 달을 바꾼다 */
         if (Math.abs(dx) < 48 || Math.abs(dx) <= Math.abs(dy) * 1.4) return;
-        quiet = Date.now() + 500;   /* 넘긴 손가락이 날짜를 누른 것으로 잡히지 않게 */
+        quiet = Date.now() + 600;   /* 넘긴 손가락이 날짜를 누른 것으로 잡히지 않게 */
         goLookupMonth(shiftYm(calMonth('lookup'), dx < 0 ? 1 : -1));
-      }, { passive: true });
-      box.addEventListener('touchcancel', function () { live = false; }, { passive: true });
+      }
+      function stop() { live = false; id = null; }
+      if (window.PointerEvent) {
+        box.addEventListener('pointerdown', function (e) {
+          if (e.pointerType === 'mouse' && e.button !== 0) { live = false; id = null; return; }
+          begin(e.pointerId, e.clientX, e.clientY, e.target);
+        }, { passive: true });
+        box.addEventListener('pointermove', function (e) {
+          move(e.pointerId, e.clientX, e.clientY);
+        }, { passive: true });
+        document.addEventListener('pointerup', function (e) { end(e.pointerId); }, { passive: true });
+        document.addEventListener('pointercancel', stop, { passive: true });
+      } else {
+        box.addEventListener('touchstart', function (e) {
+          if (e.touches.length !== 1) { live = false; id = null; return; }
+          begin(1, e.touches[0].clientX, e.touches[0].clientY, e.target);
+        }, { passive: true });
+        box.addEventListener('touchmove', function (e) {
+          if (e.touches.length !== 1) return;
+          move(1, e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: true });
+        box.addEventListener('touchend', function (e) {
+          if (e.touches && e.touches.length) return;
+          end(1);
+        }, { passive: true });
+        box.addEventListener('touchcancel', stop, { passive: true });
+      }
       return { quiet: function () { return Date.now() < quiet; } };
     })();
 
