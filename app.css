@@ -173,6 +173,8 @@ button{font-family:inherit;cursor:pointer}
   margin-top:7px;display:flex;flex-wrap:wrap;gap:4px 13px;
   font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.2px;
 }
+/* 회차 뱃지 옆 배차 시각 숫자만 더 크고 진하게 */
+.rtrips .tt{font-size:1.3em;font-weight:900;color:#0f172a;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
 .rbig{display:none;margin-top:11px;grid-template-columns:1fr 1fr;gap:8px}
 .row.open .rtrips{display:none}
 .row.open .rbig{display:grid}

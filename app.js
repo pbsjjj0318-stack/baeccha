@@ -305,7 +305,7 @@
       return '<span class="cell"><em>' + t.no + '회</em><strong>' + esc(time) + '</strong>' +
         (t.depart && t.derived ? '<span class="approx">≈</span>' : '') + '</span>';
     }
-    return '<span class="tr"><b>' + t.no + '회</b>' + esc(time) +
+    return '<span class="tr"><b>' + t.no + '회</b><strong class="tt">' + esc(time) + '</strong>' +
       (t.depart && t.derived ? '<span class="approx">≈</span>' : '') + '</span>';
   }
 
