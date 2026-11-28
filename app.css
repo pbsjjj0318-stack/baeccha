@@ -173,10 +173,6 @@ button{font-family:inherit;cursor:pointer}
   margin-top:7px;display:flex;flex-wrap:wrap;gap:4px 13px;
   font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.2px;
 }
-/* 회차 뱃지 옆 배차 시각 숫자만 더 크고 진하게 (전체 조회 차량 줄 한정) */
-.rtrips .tt{font-size:1.3em;font-weight:900;color:#0f172a;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
-/* 내 배차 카드 쪽은 예전 그대로 (strong 기본 굵기로 바뀌지 않게) */
-.ctrips .tt{font-weight:inherit}
 .rbig{display:none;margin-top:11px;grid-template-columns:1fr 1fr;gap:8px}
 .row.open .rtrips{display:none}
 .row.open .rbig{display:grid}
@@ -288,8 +284,8 @@ button{font-family:inherit;cursor:pointer}
 .calpad{height:38px}
 .cald{position:relative;border:0;background:#f6f8fc;border-radius:10px;height:38px;padding:0;color:#43506a;font-size:14.5px;font-weight:800;font-variant-numeric:tabular-nums}
 .cald .dn{position:relative;z-index:1}
-.cald.has{background:#e8eefb;color:#1d4ed8}
-.cald.has::after{content:'';position:absolute;left:50%;bottom:5px;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:#1d4ed8;opacity:.55}
+.cald.has{background:#d6e4ff;color:#0f3fa8;font-weight:900;box-shadow:inset 0 0 0 1.5px #9db8ee}
+.cald.has::after{content:'';position:absolute;left:50%;bottom:5px;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:#1d4ed8;opacity:1}
 .cald.today{box-shadow:inset 0 0 0 1.5px #9db8ee}
 .cald.on{background:#1d4ed8;color:#fff;box-shadow:0 2px 8px rgba(29,78,216,.28)}
 .cald.on::after{display:none}
